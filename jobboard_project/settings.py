@@ -19,9 +19,15 @@ if ENV_PATH.exists():
             # Override local environment variables from .env for development.
             os.environ[key] = value
 
+
+def _get_allowed_hosts(value: str) -> list[str]:
+    return [host.strip() for host in value.split(',') if host.strip()]
+
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'please-change-this-secret')
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = _get_allowed_hosts(
+    os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1')
+)
 
 INSTALLED_APPS = [
     'django.contrib.admin',

@@ -89,6 +89,8 @@ CLOUDINARY_API_SECRET = [your-cloudinary-api-secret]
 CSRF_TRUSTED_ORIGINS = https://yourdomain.railway.app,https://yourdomain.com,https://www.yourdomain.com
 ```
 
+> Use the actual Railway app domain for `ALLOWED_HOSTS`, e.g. `web-production-249eb.up.railway.app`.
+
 **Note:** Railway automatically sets `DATABASE_URL` when PostgreSQL is added.
 
 ## Step 5: Deploy
