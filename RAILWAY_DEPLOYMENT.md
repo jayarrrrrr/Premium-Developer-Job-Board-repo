@@ -82,14 +82,14 @@ In Railway Dashboard:
 ```
 DJANGO_SECRET_KEY = [your-generated-secret-key]
 DEBUG = False
-ALLOWED_HOSTS = yourdomain.railway.app,yourdomain.com,www.yourdomain.com
+ALLOWED_HOSTS = premium-job-board.up.railway.app
 CLOUDINARY_CLOUD_NAME = [your-cloudinary-cloud-name]
 CLOUDINARY_API_KEY = [your-cloudinary-api-key]
 CLOUDINARY_API_SECRET = [your-cloudinary-api-secret]
-CSRF_TRUSTED_ORIGINS = https://yourdomain.railway.app,https://yourdomain.com,https://www.yourdomain.com
+CSRF_TRUSTED_ORIGINS = https://premium-job-board.up.railway.app
 ```
 
-> Use the actual Railway app domain for `ALLOWED_HOSTS`, e.g. `web-production-249eb.up.railway.app`.
+> Use the actual Railway app domain for `ALLOWED_HOSTS`, e.g. `premium-job-board.up.railway.app`.
 
 **Note:** Railway automatically sets `DATABASE_URL` when PostgreSQL is added.
 
