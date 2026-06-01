@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <section class="hero-section">
+    <div class="hero-copy">
+      <p class="eyebrow">Premium Upgrade</p>
+      <h1>Upgrade your developer job experience</h1>
+      <p class="hero-text">Gain instant access to salary ranges, direct application links, advanced filters, and priority listings designed for serious developers.</p>
+    </div>
+    <div class="plan-card">
+      <div class="plan-header">
+        <span class="plan-badge">⭐ Premium Membership</span>
+      </div>
+      <h2>₱199 / month</h2>
+      <p>Perfect for developers who want VIP access to the best jobs and the full salary picture.</p>
+      <div class="plan-price">₱199<span>/ month</span></div>
+      <ul class="plan-benefits">
+        <li>✓ View salary ranges for every role</li>
+        <li>✓ Access direct application links</li>
+        <li>✓ Advanced job filters and priority listings</li>
+        <li>✓ Premium badge across the site</li>
+      </ul>
+      {% with profile=user.get_or_create_profile %}
+        {% if profile.is_premium %}
+          <div class="badge-premium">⭐ You are already a Premium Member</div>
+          <a href="{% url 'dashboard' %}" class="upgrade-btn">Go to dashboard</a>
+        {% else %}
+          <a href="{% url 'payment' %}" class="upgrade-btn">Upgrade Now</a>
+        {% endif %}
+      {% endwith %}
+    </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <section class="hero-section">
+    <div class="hero-copy">
+      <p class="eyebrow">Saved Jobs</p>
+      <h1>Your saved jobs</h1>
+    </div>
+    <div class="plan-card">
+      {% if saved %}
+        <ul>
+          {% for item in saved %}
+            <li><a href="{% url 'job_detail' item.job.pk %}">{{ item.job.title }} — {{ item.job.company.company_name }}</a></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No saved jobs yet.</p>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

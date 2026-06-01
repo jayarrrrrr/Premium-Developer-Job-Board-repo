@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <section class="hero-section">
+    <div class="hero-copy">
+      <p class="eyebrow">Premium Developer Opportunities</p>
+      <h1>Find Your Next Developer Job</h1>
+      <p class="hero-text">Discover premium software engineering opportunities from top companies.</p>
+    </div>
+    <div class="hero-search-card">
+      <form id="search-form" class="hero-search-form">
+        <div class="search-input-group">
+          <label for="search-input">What</label>
+          <input type="text" name="search" id="search-input" placeholder="Job title, skill, or company" />
+        </div>
+        <div class="search-input-group">
+          <label for="location-input">Where</label>
+          <input type="text" name="location" id="location-input" placeholder="Remote, New York, London" />
+        </div>
+        <button type="submit" class="search-button">Search Jobs</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="stats-grid">
+    <div class="stat-card">
+      <p class="stat-number">1,240</p>
+      <p class="stat-label">Active Jobs</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-number">520</p>
+      <p class="stat-label">Companies Hiring</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-number">8,300</p>
+      <p class="stat-label">Developers Hired</p>
+    </div>
+  </section>
+
+  <section class="results-pane">
+    <div class="results-header">
+      <div>
+        <h2>Job listings</h2>
+        <p>Scroll through featured developer roles and filter with the search bar above.</p>
+      </div>
+    </div>
+    <div id="job-list" class="jobs-grid"></div>
+    <div id="pagination-controls" class="pagination"></div>
+  </section>
+
+  <template id="job-card-template">
+    <article class="job-card">
+      <div class="job-card-top">
+        <div class="logo-circle">
+          <img class="logo-image" alt="Company logo">
+          <span class="logo-initials">DB</span>
+        </div>
+        <div class="job-title-row">
+          <h3 class="job-title"></h3>
+          <p class="job-company"></p>
+        </div>
+      </div>
+      <div class="job-details-row">
+        <span class="badge badge-secondary">Full-Time</span>
+        <span class="badge badge-outline">Remote</span>
+        <span class="job-location"></span>
+      </div>
+      <p class="job-summary"></p>
+      <div class="job-tags"></div>
+      <div class="job-card-footer">
+        <div class="job-feature">
+          <span class="job-feature-label">Salary</span>
+          <p class="job-salary"></p>
+        </div>
+        <div class="job-feature">
+          <span class="job-feature-label">Apply</span>
+          <div class="job-application"></div>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <script src="/static/frontend/search.js"></script>
+{% endblock %}

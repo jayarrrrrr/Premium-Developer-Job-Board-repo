@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+  <section class="hero-section">
+    <div class="hero-copy">
+      <p class="eyebrow">Your Profile</p>
+      <div style="display:flex;align-items:center;gap:1rem;">
+        {% with profile=user_profile.get_or_create_profile %}
+          {% if profile.profile_picture %}
+            <img src="{{ profile.profile_picture.url }}" alt="Profile" class="profile-avatar-large">
+          {% else %}
+            {% if profile.role == 'EMPLOYER' %}
+              <img src="{% static 'images/default-company.svg' %}" alt="Company" class="profile-avatar-large">
+            {% else %}
+              <img src="{% static 'images/default-developer.svg' %}" alt="Avatar" class="profile-avatar-large">
+            {% endif %}
+          {% endif %}
+        {% endwith %}
+        <div>
+          <h1 style="margin:0">{{ user_profile.get_full_name|default:user_profile.username }}</h1>
+          <p style="margin:0;color:var(--muted)">{{ user_profile.username }} • {{ user_profile.email }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dashboard-grid">
+    <div class="dashboard-card">
+      <h2>Account Details</h2>
+      <p><strong>Username:</strong> {{ user_profile.username }}</p>
+      <p><strong>Email:</strong> {{ user_profile.email }}</p>
+      <p><strong>Premium status:</strong> {% if profile.is_premium %}Active{% else %}Free{% endif %}</p>
+      <p><strong>Role:</strong> {{ profile.role }}</p>
+      <p><a href="{% url 'profile_edit' %}">Edit Profile</a></p>
+    </div>
+
+    <div class="dashboard-card">
+      <h2>Profile Summary</h2>
+      {% with profile=user_profile.get_or_create_profile %}
+        <p>{{ profile.bio|default:"No bio added yet." }}</p>
+        <p><strong>Location:</strong> {{ profile.location|default:"Not set" }}</p>
+        <p><strong>Website:</strong> {% if profile.website %}<a href="{{ profile.website }}">{{ profile.website }}</a>{% else %}Not set{% endif %}</p>
+        <p><strong>Phone:</strong> {{ profile.phone|default:"Not set" }}</p>
+      {% endwith %}
+      <p><a href="{% url 'dashboard' %}">Return to dashboard</a></p>
+    </div>
+  </section>
+{% endblock %}

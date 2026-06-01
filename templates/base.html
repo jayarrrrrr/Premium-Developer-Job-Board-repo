@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Premium Developer Job Board</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml" />
+  <link rel="stylesheet" href="/static/css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-container">
+      <div class="brand-group">
+        <div class="brand-mark">DevJobs</div>
+        <div>
+          <h1 class="site-logo">Premium Developer Job Board</h1>
+          <p class="header-subtitle">A polished job marketplace for software engineers and development teams.</p>
+        </div>
+      </div>
+      <nav class="header-nav">
+        {% if request.user.is_authenticated %}
+          {# Notification bell #}
+          <button class="icon-btn notification-btn" aria-label="Notifications">
+            <i class="fa-regular fa-bell"></i>
+            <span class="notif-count" aria-hidden="true">0</span>
+          </button>
+
+          {% if effective_is_premium %}
+            <span class="premium-badge">⭐ Premium Member</span>
+          {% endif %}
+
+          {# Primary CTA for employers: keep Post Job visible #}
+          {% if request.user.profile_role == 'EMPLOYER' %}
+            <a href="{% url 'job_create' %}" class="nav-link primary post-job-cta">Post Job</a>
+          {% endif %}
+
+          {# Profile toggle + dropdown #}
+          <div class="profile-menu">
+            <button class="profile-toggle" aria-haspopup="true" aria-expanded="false">
+              {% with profile=request.user.get_or_create_profile %}
+                {% if profile.profile_picture %}
+                  <img src="{{ profile.profile_picture.url }}" alt="Avatar" class="profile-avatar">
+                {% else %}
+                  {% if profile.role == 'EMPLOYER' %}
+                    <img src="{% static 'images/default-company.svg' %}" alt="Company Avatar" class="profile-avatar">
+                  {% else %}
+                    <img src="{% static 'images/default-developer.svg' %}" alt="Avatar" class="profile-avatar">
+                  {% endif %}
+                {% endif %}
+              {% endwith %}
+            </button>
+
+            <div class="profile-dropdown" data-open="false">
+              <div class="dropdown-arrow" aria-hidden="true"></div>
+              <ul class="dropdown-list">
+                {% if request.user.profile_role == 'EMPLOYER' %}
+                  <li><a class="dropdown-item" href="{% url 'employer_dashboard' %}">Dashboard</a></li>
+                  <li><a class="dropdown-item" href="{% url 'job_create' %}">Post Job</a></li>
+                  <li><a class="dropdown-item" href="{% url 'job_list' %}">Manage Jobs</a></li>
+                  <li><a class="dropdown-item" href="{% url 'employer_dashboard' %}">Applicants</a></li>
+                  <li><a class="dropdown-item" href="{% url 'company_profile' %}">Company Profile</a></li>
+                {% else %}
+                  <li><a class="dropdown-item" href="{% url 'dashboard' %}">Dashboard</a></li>
+                  <li><a class="dropdown-item" href="{% url 'job_list' %}">Browse Jobs</a></li>
+                  <li><a class="dropdown-item" href="{% url 'saved_jobs' %}">Saved Jobs</a></li>
+                  <li><a class="dropdown-item" href="{% url 'application_history' %}">Applications</a></li>
+                  <li><a class="dropdown-item" href="{% url 'profile' %}">Profile</a></li>
+                {% endif %}
+                <li><a class="dropdown-item" href="{% url 'profile_edit' %}">Settings</a></li>
+                <li>
+                  <form method="post" action="{% url 'logout' %}" class="dropdown-logout">{% csrf_token %}
+                    <button type="submit" class="dropdown-item logout-btn">Logout</button>
+                  </form>
+                </li>
+              </ul>
+            </div>
+          </div>
+        {% else %}
+          <a href="{% url 'login' %}" class="nav-link">Login</a>
+          <a href="/signup/" class="nav-link primary">Sign Up</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <div class="app-wrapper {% block app_wrapper_class %}{% endblock %}">
+    <aside class="sidebar">
+      {% if request.user.is_authenticated %}
+        {% with profile=request.user.get_or_create_profile %}
+        <div class="sidebar-profile" style="margin-bottom:1rem;">
+          {% if profile.profile_picture %}
+            <img src="{{ profile.profile_picture.url }}" alt="Profile" class="profile-avatar-large">
+          {% else %}
+            {% if profile.role == 'EMPLOYER' %}
+              <img src="{% static 'images/default-company.svg' %}" alt="Company" class="profile-avatar-large">
+            {% else %}
+              <img src="{% static 'images/default-developer.svg' %}" alt="Avatar" class="profile-avatar-large">
+            {% endif %}
+          {% endif %}
+          <div style="margin-top:0.75rem;">
+            <div style="font-weight:700;">{{ request.user.username }}</div>
+            <div style="color:var(--muted);font-size:0.95rem;margin-top:0.25rem;">{% if effective_is_premium %}Premium Member{% else %}Free{% endif %}</div>
+          </div>
+        </div>
+        {% endwith %}
+      {% endif %}
+      <div class="sidebar-brand">
+        <h2>Quick Actions</h2>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="/jobs/" class="sidebar-nav-item">
+          <span class="nav-icon">📋</span>
+          <span>Job Listings</span>
+        </a>
+        {% if request.user.is_authenticated %}
+          {% if request.user.profile_role == 'EMPLOYER' %}
+            <a href="{% url 'employer_dashboard' %}" class="sidebar-nav-item">
+              <span class="nav-icon">📊</span>
+              <span>Dashboard</span>
+            </a>
+            <a href="{% url 'job_create' %}" class="sidebar-nav-item">
+              <span class="nav-icon">➕</span>
+              <span>Post Job</span>
+            </a>
+          {% else %}
+            <a href="{% url 'dashboard' %}" class="sidebar-nav-item">
+              <span class="nav-icon">🏠</span>
+              <span>My Dashboard</span>
+            </a>
+            <a href="{% url 'application_history' %}" class="sidebar-nav-item">
+              <span class="nav-icon">📝</span>
+              <span>Applications</span>
+            </a>
+          {% endif %}
+          <a href="{% url 'profile' %}" class="sidebar-nav-item">
+            <span class="nav-icon">👤</span>
+            <span>Profile</span>
+          </a>
+        {% else %}
+          <a href="/signup/" class="sidebar-nav-item">
+            <span class="nav-icon">✍️</span>
+            <span>Sign Up</span>
+          </a>
+        {% endif %}
+        {% if request.user.is_staff %}
+          <a href="/admin/" class="sidebar-nav-item">
+            <span class="nav-icon">⚙️</span>
+            <span>Admin</span>
+          </a>
+        {% endif %}
+      </nav>
+
+      {% if request.user.is_authenticated %}
+        <form method="post" action="{% url 'logout' %}" class="sidebar-logout">
+          {% csrf_token %}
+          <button type="submit" class="sidebar-logout-btn">
+            <span class="nav-icon">🚪</span>
+            <span>Logout</span>
+          </button>
+        </form>
+      {% endif %}
+
+      <div class="sidebar-card premium-card">
+        <div class="premium-card-header">
+          <span class="premium-icon">✨</span>
+          <h3>Premium Benefits</h3>
+        </div>
+        <ul class="benefits-list">
+          <li><strong>✓</strong> View salary ranges</li>
+          <li><strong>✓</strong> Access direct application links</li>
+          <li><strong>✓</strong> Advanced job filters</li>
+          <li><strong>✓</strong> Priority job listings</li>
+        </ul>
+        {% if request.user.is_authenticated and not effective_is_premium %}
+          <a href="{% url 'upgrade' %}" class="upgrade-btn">Upgrade to Premium</a>
+        {% elif request.user.is_authenticated and effective_is_premium %}
+          <div class="upgrade-btn premium-label">⭐ Premium access granted</div>
+        {% elif not request.user.is_authenticated %}
+          <a href="/signup/" class="upgrade-btn">Get Premium</a>
+        {% endif %}
+      </div>
+
+      {% block sidebar_extra %}{% endblock %}
+    </aside>
+
+    <main class="content-area">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <div>© 2026 Premium Developer Job Board</div>
+      <div>Trusted developer jobs — secure, premium, scalable.</div>
+    </div>
+  </footer>
+</body>
+  <script src="/static/frontend/header.js"></script>
+</html>

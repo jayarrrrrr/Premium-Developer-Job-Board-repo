@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <section class="hero-section">
+    <div class="hero-copy">
+      <p class="eyebrow">Pending Jobs</p>
+      <h1>Jobs awaiting approval</h1>
+    </div>
+    <div class="plan-card">
+      {% if pending_jobs %}
+        <ul>
+          {% for job in pending_jobs %}
+            <li>{{ job.title }} by {{ job.company.company_name }} — <form method="post" action="{% url 'approve_job' job.pk %}" style="display:inline;">{% csrf_token %}<button type="submit">Approve</button></form> <form method="post" action="{% url 'reject_job' job.pk %}" style="display:inline;">{% csrf_token %}<button type="submit">Reject</button></form></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No pending jobs.</p>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <section class="dashboard-hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Employer Dashboard</p>
+      <h1>Build your hiring center</h1>
+      <p class="hero-text">Manage active jobs, review applicants, and keep your company profile polished with a modern hiring workflow.</p>
+    </div>
+  </section>
+
+  <div class="dashboard-top-grid">
+    <article class="company-card">
+      <div class="company-card-header">
+        {% if company_profile and company_profile.logo %}
+          <img class="company-avatar" src="{{ company_profile.logo }}" alt="{{ company_profile.company_name }} logo">
+        {% else %}
+          <span class="company-avatar company-avatar-fallback">{{ company_profile.company_name|default:'Your Company'|slice:":2"|upper }}</span>
+        {% endif %}
+        <div>
+          <p class="eyebrow">Company Profile</p>
+          <h2>{{ company_profile.company_name|default:'Your Company' }}</h2>
+          <p class="company-location">{{ company_profile.location|default:'Location not set' }}</p>
+        </div>
+      </div>
+      <div class="company-card-status">
+        <span class="badge badge-premium">{% if effective_is_premium %}Premium Employer{% else %}Standard Employer{% endif %}</span>
+      </div>
+      <p class="company-card-copy">Keep your company branding visible, update your profile details, and let candidates know why your company is a great place to work.</p>
+      <div class="company-card-actions">
+        <a href="{% url 'company_profile' %}" class="btn primary-button">Edit Profile</a>
+      </div>
+    </article>
+
+    <section class="kpi-grid">
+      <article class="kpi-card">
+        <p class="kpi-label">Total Jobs</p>
+        <p class="kpi-value">{{ jobs.count }}</p>
+      </article>
+      <article class="kpi-card">
+        <p class="kpi-label">Approved Listings</p>
+        <p class="kpi-value">{{ active_jobs.count }}</p>
+      </article>
+      <article class="kpi-card">
+        <p class="kpi-label">Total Applicants</p>
+        <p class="kpi-value">{{ total_applicants }}</p>
+      </article>
+      <article class="kpi-card">
+        <p class="kpi-label">Recent Applications</p>
+        <p class="kpi-value">{{ recent_applications|length }}</p>
+      </article>
+    </section>
+  </div>
+
+  <section class="action-buttons">
+    <a href="{% url 'job_create' %}" class="btn primary-button">Post New Job</a>
+    <a href="{% url 'job_list' %}" class="btn outline-button">Manage Jobs</a>
+    {% with first_job=jobs.first %}
+      {% if first_job %}
+        <a href="{% url 'job_applicants' first_job.pk %}" class="btn outline-button">Review Applicants</a>
+      {% else %}
+        <a href="{% url 'job_create' %}" class="btn outline-button">Review Applicants</a>
+      {% endif %}
+    {% endwith %}
+    <a href="{% url 'company_profile' %}" class="btn outline-button">Company Profile</a>
+  </section>
+
+  <div class="tables-grid">
+    <article class="table-card">
+      <div class="card-header">
+        <div>
+          <h2>Recent Applications</h2>
+          <p>Latest candidate activity across your most recent openings.</p>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table class="table-modern">
+          <thead>
+            <tr>
+              <th>Applicant</th>
+              <th>Position</th>
+              <th>Date Applied</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for application in recent_applications %}
+              <tr>
+                <td>{{ application.applicant.username }}</td>
+                <td>{{ application.job.title }}</td>
+                <td>{{ application.applied_at|date:'M d, Y' }}</td>
+                <td><span class="table-badge {{ application.status|lower }}">{{ application.status|title }}</span></td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="4">No recent applications yet.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="table-card">
+      <div class="card-header">
+        <div>
+          <h2>Active Job Listings</h2>
+          <p>Monitor active listings and applicant flow at a glance.</p>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table class="table-modern">
+          <thead>
+            <tr>
+              <th>Job Title</th>
+              <th>Status</th>
+              <th>Applicants</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for job in active_jobs %}
+              <tr>
+                <td>{{ job.title }}</td>
+                <td><span class="table-badge {{ job.status|lower }}">{{ job.get_status_display }}</span></td>
+                <td>{{ job.applications.count }}</td>
+                <td class="actions">
+                  <a href="{% url 'job_edit' job.pk %}" class="text-button">Edit</a>
+                  <a href="{% url 'job_applicants' job.pk %}" class="text-button">Applicants</a>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="4">No active job listings yet. Post your first role to start collecting candidates.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </article>
+  </div>
+{% endblock %}

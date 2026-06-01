@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <section class="hero-section">
+    <div class="hero-copy">
+      <p class="eyebrow">Post a job</p>
+      <h1>{% if creating %}Create Job{% else %}Edit Job{% endif %}</h1>
+    </div>
+    <div class="plan-card">
+      <form method="post" class="signup-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="upgrade-btn">Save Job</button>
+      </form>
+    </div>
+  </section>
+{% endblock %}

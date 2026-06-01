@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <section class="hero-section">
+    <div class="hero-copy">
+      <p class="eyebrow">{{ job.title }}</p>
+      <h1>{{ job.title }}</h1>
+      <p class="hero-text">{{ job.company.company_name }} — {{ job.location }}</p>
+    </div>
+    <div class="plan-card">
+      <h2>About the role</h2>
+      <p>{{ job.description }}</p>
+      <h3>Requirements</h3>
+      <p>{{ job.skills_required }}</p>
+      <h3>Salary</h3>
+      {% if can_view_salary %}
+        <p><strong>{{ job.salary }}</strong></p>
+      {% else %}
+        <p class="job-locked">🔒 Premium Feature — Upgrade to view salary</p>
+        <a href="{% url 'upgrade' %}" class="upgrade-btn">Upgrade to Premium</a>
+      {% endif %}
+
+      <h3>Apply</h3>
+      {% if can_apply_link %}
+        <a href="{{ job.application_url }}" target="_blank" class="apply-button">Apply on company site</a>
+      {% else %}
+        <p class="job-locked">🔒 Premium Feature — Upgrade to access direct application links</p>
+        <a href="{% url 'upgrade' %}" class="upgrade-btn">Upgrade to Premium</a>
+      {% endif %}
+
+      {% if user.is_authenticated %}
+        <form method="post" action="" class="signup-form">
+          {% csrf_token %}
+          {{ application_form.as_p }}
+          <button type="submit" class="upgrade-btn">Submit Application</button>
+        </form>
+      {% else %}
+        <p><a href="{% url 'login' %}">Log in</a> to apply.</p>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

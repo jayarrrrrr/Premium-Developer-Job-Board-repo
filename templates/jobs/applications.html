@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <section class="hero-section">
+    <div class="hero-copy">
+      <p class="eyebrow">Applications</p>
+      <h1>Your applications</h1>
+    </div>
+    <div class="plan-card">
+      {% if applications %}
+        <ul>
+          {% for app in applications %}
+            <li>{{ app.job.title }} — {{ app.status }} — Applied {{ app.applied_at|date:'F j, Y' }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No recent applications.</p>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

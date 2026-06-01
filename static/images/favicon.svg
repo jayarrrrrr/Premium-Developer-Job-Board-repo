@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="DevJobs">
+  <rect width="64" height="64" rx="12" fill="#0f172a"/>
+  <path d="M18 18h28v28H18z" fill="#2563eb" opacity="0.95"/>
+  <text x="50%" y="55%" text-anchor="middle" fill="#fff" font-family="Inter, sans-serif" font-size="26" font-weight="700">D</text>
+</svg>

@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+  <section class="dashboard-hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Job Seeker Dashboard</p>
+      <div style="display:flex;align-items:center;gap:1rem;">
+        {% with profile=user_profile.get_or_create_profile %}
+          {% if profile.profile_picture %}
+            <img src="{{ profile.profile_picture.url }}" alt="Avatar" class="profile-avatar-large">
+          {% else %}
+            <img src="{% static 'images/default-developer.svg' %}" alt="Avatar" class="profile-avatar-large">
+          {% endif %}
+        {% endwith %}
+        <div>
+          <h1>Welcome back, {{ user_profile.username }}</h1>
+          {% if is_premium %}
+            <p class="hero-text">You are a premium member until {{ user_profile.premium_expires_at|date:'F j, Y' }}.</p>
+          {% else %}
+            <p class="hero-text">Upgrade to premium for salary insights, direct apply links, and priority listings.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="dashboard-top-grid">
+    <article class="company-card">
+      <div class="company-card-header">
+        <span class="company-avatar company-avatar-fallback">{{ user_profile.username|slice:":2"|upper }}</span>
+        <div>
+          <p class="eyebrow">Profile Snapshot</p>
+          <h2>{{ user_profile.first_name|default:user_profile.username }}</h2>
+          <p class="company-location">{{ user_profile.email }}</p>
+        </div>
+      </div>
+      <div class="company-card-status">
+        <span class="badge badge-premium">{% if is_premium %}Premium Member{% else %}Free Member{% endif %}</span>
+      </div>
+      <p class="company-card-copy">Keep your profile current and rely on curated insight to prioritize your next applications.</p>
+      <div class="company-card-actions">
+        <a href="{% url 'profile' %}" class="btn primary-button">Edit Profile</a>
+      </div>
+    </article>
+
+    <section class="kpi-grid">
+      <article class="kpi-card">
+        <p class="kpi-label">Saved Jobs</p>
+        <p class="kpi-value">{{ saved_count }}</p>
+      </article>
+      <article class="kpi-card">
+        <p class="kpi-label">Applications</p>
+        <p class="kpi-value">{{ applied_count }}</p>
+      </article>
+      <article class="kpi-card">
+        <p class="kpi-label">Profile Completion</p>
+        <p class="kpi-value">{{ profile_completion }}%</p>
+      </article>
+      <article class="kpi-card">
+        <p class="kpi-label">Recommended Jobs</p>
+        <p class="kpi-value">{{ recommended_jobs|length }}</p>
+      </article>
+    </section>
+  </div>
+
+  <section class="dashboard-grid">
+    <div class="dashboard-card">
+      <h2>Quick Actions</h2>
+      <ul class="plan-benefits">
+        <li>✅ <a href="{% url 'job_list' %}">Browse Jobs</a></li>
+        <li>✅ <a href="{% url 'saved_jobs' %}">Saved Jobs</a></li>
+        <li>✅ <a href="{% url 'application_history' %}">My Applications</a></li>
+        <li>✅ <a href="{% url 'profile' %}">Edit Profile</a></li>
+        <li>✅ <a href="{% url 'upgrade' %}">Upgrade to Premium</a></li>
+      </ul>
+    </div>
+
+    <div class="dashboard-card">
+      <h2>Recent Applications</h2>
+      <ul>
+        {% for application in applications %}
+          <li>{{ application.job.title }} — {{ application.status }}</li>
+        {% empty %}
+          <li>No recent applications yet.</li>
+        {% endfor %}
+      </ul>
+      <p><a href="{% url 'application_history' %}">View full history</a></p>
+    </div>
+
+    <div class="dashboard-card">
+      <h2>Saved Jobs</h2>
+      <p>{{ saved_count }} saved jobs</p>
+      <p><a href="{% url 'saved_jobs' %}">View saved jobs</a></p>
+    </div>
+
+    <div class="dashboard-card">
+      <h2>Recommended Jobs</h2>
+      <ul>
+        {% for job in recommended_jobs %}
+          <li>{{ job.title }} at {{ job.company.company_name }}</li>
+        {% empty %}
+          <li>No recommended jobs available right now.</li>
+        {% endfor %}
+      </ul>
+      <p><a href="{% url 'job_list' %}">Browse all jobs</a></p>
+    </div>
+  </section>
+{% endblock %}

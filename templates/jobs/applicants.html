@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <section class="hero-section">
+    <div class="hero-copy">
+      <p class="eyebrow">Applicants</p>
+      <h1>Applicants for {{ job.title }}</h1>
+    </div>
+    <div class="plan-card">
+      {% if applicants %}
+        <ul>
+          {% for a in applicants %}
+            <li>{{ a.applicant.username }} — {{ a.status }} — <a href="mailto:{{ a.applicant.email }}">Contact</a></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No applicants yet.</p>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}
