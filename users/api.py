@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions
 from .serializers import UserSerializer, ProfileSerializer
-from jobs.models import Job, Application, SavedJob
+from users.jobs.models import Job, Application, SavedJob
 from .permissions import IsDeveloper, IsEmployer, IsPremiumUser
 
 

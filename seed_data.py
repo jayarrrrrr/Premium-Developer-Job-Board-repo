@@ -4,7 +4,7 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'jobboard_project.settings')
 django.setup()
 
-from jobs.models import JobPosting
+from users.jobs.models import JobPosting
 
 sample_jobs = [
     {

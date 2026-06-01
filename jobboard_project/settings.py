@@ -34,7 +34,7 @@ INSTALLED_APPS = [
     'cloudinary_storage',
     'cloudinary',
     'users',
-    'jobs',
+    'users.jobs',
 ]
 
 MIDDLEWARE = [

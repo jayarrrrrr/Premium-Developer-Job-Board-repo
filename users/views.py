@@ -18,7 +18,7 @@ from .services import SecurityService
 from .forms import ProfileForm
 from django.shortcuts import get_object_or_404
 
-from jobs.models import Job, Application, SavedJob
+from users.jobs.models import Job, Application, SavedJob
 
 
 class PremiumTokenObtainPairSerializer(TokenObtainPairSerializer):

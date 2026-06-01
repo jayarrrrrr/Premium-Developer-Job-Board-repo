@@ -2,10 +2,10 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic.base import RedirectView
 from rest_framework.routers import DefaultRouter
-from jobs.views import JobPostingViewSet
+from users.jobs.views import JobPostingViewSet
 from users.views import LoginView, LogoutView, SignupView, SignupAPIView, PremiumTokenObtainPairView
 from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
-from jobs.api import JobViewSet, ApplicationViewSet
+from users.jobs.api import JobViewSet, ApplicationViewSet
 from users.api import UserProfileAPIView, DeveloperDashboardAPIView, EmployerDashboardAPIView, DebugPremiumAPIView
 try:
     from rest_framework.schemas import get_schema_view
@@ -49,7 +49,7 @@ urlpatterns += [
     path('signup/', SignupView.as_view(), name='signup'),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
-    path('jobs/', include('jobs.urls')),
+    path('jobs/', include('users.jobs.urls')),
     path('', include('users.urls')),
 ]
 
