@@ -1,106 +1,223 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <section class="hero-section jobs-hero">
-    <div class="hero-copy">
-      <p class="eyebrow">Premium Developer Opportunities</p>
-      <h1>Find Your Next Developer Job</h1>
-      <p class="hero-text">Discover premium software engineering roles from leading tech teams and remote-first companies.</p>
-    </div>
-    <div class="hero-search-card card-modern">
-      <form id="search-form" class="signup-form">
-        <div class="form-field">
-          <label for="search-input" class="form-label">Search jobs</label>
-          <input type="text" name="search" id="search-input" class="form-control" placeholder="Job title, skill, or company" />
-        </div>
-        <div class="form-field">
-          <label for="location-input" class="form-label">Location</label>
-          <input type="text" name="location" id="location-input" class="form-control" placeholder="Remote, New York, London" />
-        </div>
-        <button type="submit" class="btn btn-primary">Search Jobs</button>
-      </form>
-    </div>
-  </section>
+  <!-- LARGE HERO SECTION -->
+  <section class="marketplace-hero">
+    <div class="hero-gradient-bg"></div>
+    <div class="container-wide marketplace-hero-content">
+      <div class="hero-main">
+        <p class="hero-eyebrow">Find Premium Opportunities</p>
+        <h1 class="hero-title">Discover Your Next Developer Role</h1>
+        <p class="hero-subtitle">Curated opportunities from the world's leading tech companies, startups, and teams.</p>
+      </div>
 
-  <section class="jobs-page">
-    <div class="jobs-page-grid">
-      <aside class="job-sidebar card-modern filter-panel">
-        <div>
-          <h3>Filter results</h3>
-          <p class="small-copy">Use search and tags to narrow down the best opportunities.</p>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Employment type</label>
-          <select class="form-control" name="job_type">
-            <option value="">Any type</option>
-            <option value="full-time">Full-Time</option>
-            <option value="contract">Contract</option>
-            <option value="remote">Remote</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Team size</label>
-          <select class="form-control" name="team_size">
-            <option value="">Any size</option>
-            <option value="startup">Startup</option>
-            <option value="scaleup">Scale-up</option>
-            <option value="enterprise">Enterprise</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Premium status</label>
-          <div class="job-tags">
-            <span class="job-tag">Premium</span>
-            <span class="job-tag">Remote</span>
-            <span class="job-tag">Flexible</span>
-          </div>
-        </div>
-      </aside>
-
-      <div class="jobs-main">
-        <section class="results-pane">
-          <div class="results-header">
-            <div>
-              <h2>Job listings</h2>
-              <p>Scroll through featured developer roles and filter with the search bar above.</p>
+      <!-- HERO SEARCH CARD -->
+      <div class="marketplace-search-panel">
+        <form id="search-form" class="marketplace-search-form">
+          <div class="search-row">
+            <div class="search-field">
+              <label for="search-input" class="search-label">Job title, skill, or company</label>
+              <input type="text" name="search" id="search-input" class="search-input" placeholder="e.g. Senior React Engineer" />
             </div>
-            <div class="badge badge-secondary">{{ active_jobs }}+ live roles</div>
+            <div class="search-field">
+              <label for="location-input" class="search-label">Location or remote</label>
+              <input type="text" name="location" id="location-input" class="search-input" placeholder="e.g. Remote, San Francisco" />
+            </div>
+            <button type="submit" class="search-button btn-primary">Search</button>
           </div>
-          <div id="job-list" class="jobs-grid"></div>
-          <div id="pagination-controls" class="pagination"></div>
-        </section>
+        </form>
+
+        <div class="search-filters">
+          <button class="filter-chip active">All</button>
+          <button class="filter-chip">Remote</button>
+          <button class="filter-chip">Full-Time</button>
+          <button class="filter-chip">Contract</button>
+          <button class="filter-chip">Startups</button>
+        </div>
       </div>
     </div>
   </section>
 
+  <!-- MARKETPLACE GRID -->
+  <section class="marketplace-section">
+    <div class="container-wide">
+      <div class="marketplace-grid">
+        <!-- SIDEBAR FILTERS -->
+        <aside class="marketplace-sidebar">
+          <div class="sidebar-header">
+            <h2>Filters</h2>
+            <button class="text-reset" type="button">Reset all</button>
+          </div>
+
+          <!-- FILTER SECTION: EMPLOYMENT TYPE -->
+          <div class="filter-section">
+            <h3 class="filter-title">Employment type</h3>
+            <div class="filter-options">
+              <label class="filter-checkbox">
+                <input type="checkbox" name="employment_full_time" />
+                <span class="checkbox-mark"></span>
+                <span class="checkbox-label">Full-Time</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" name="employment_contract" />
+                <span class="checkbox-mark"></span>
+                <span class="checkbox-label">Contract</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" name="employment_freelance" />
+                <span class="checkbox-mark"></span>
+                <span class="checkbox-label">Freelance</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- FILTER SECTION: WORK ARRANGEMENT -->
+          <div class="filter-section">
+            <h3 class="filter-title">Work arrangement</h3>
+            <div class="filter-options">
+              <label class="filter-checkbox">
+                <input type="checkbox" name="work_remote" />
+                <span class="checkbox-mark"></span>
+                <span class="checkbox-label">Remote</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" name="work_onsite" />
+                <span class="checkbox-mark"></span>
+                <span class="checkbox-label">On-site</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" name="work_hybrid" />
+                <span class="checkbox-mark"></span>
+                <span class="checkbox-label">Hybrid</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- FILTER SECTION: COMPANY SIZE -->
+          <div class="filter-section">
+            <h3 class="filter-title">Company size</h3>
+            <div class="filter-options">
+              <label class="filter-checkbox">
+                <input type="checkbox" name="size_startup" />
+                <span class="checkbox-mark"></span>
+                <span class="checkbox-label">Startup (0-50)</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" name="size_scaleup" />
+                <span class="checkbox-mark"></span>
+                <span class="checkbox-label">Scale-up (50-500)</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" name="size_enterprise" />
+                <span class="checkbox-mark"></span>
+                <span class="checkbox-label">Enterprise (500+)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- FILTER SECTION: SALARY RANGE -->
+          <div class="filter-section">
+            <h3 class="filter-title">Salary range</h3>
+            <div class="salary-range">
+              <input type="range" class="range-slider" min="0" max="300000" />
+              <div class="range-labels">
+                <span>$0k</span>
+                <span>$300k+</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SIDEBAR PROMO -->
+          <div class="sidebar-promo">
+            <div class="promo-badge">✨ Premium</div>
+            <h3>Premium features</h3>
+            <ul class="promo-benefits">
+              <li>See salary ranges</li>
+              <li>1-click applications</li>
+              <li>Save unlimited jobs</li>
+              <li>Apply anonymously</li>
+            </ul>
+            {% if request.user.is_authenticated and not effective_is_premium %}
+              <a href="{% url 'upgrade' %}" class="btn-upgrade">Upgrade now</a>
+            {% else %}
+              <button class="btn-upgrade" disabled>You're all set!</button>
+            {% endif %}
+          </div>
+        </aside>
+
+        <!-- MAIN CONTENT: JOB LISTINGS -->
+        <main class="marketplace-main">
+          <!-- LISTINGS HEADER -->
+          <div class="listings-header">
+            <div>
+              <h2>Available roles</h2>
+              <p class="listing-count">{{ active_jobs }}+ open positions</p>
+            </div>
+            <div class="sort-controls">
+              <select class="sort-select">
+                <option selected>Most recent</option>
+                <option>Most relevant</option>
+                <option>Salary: High to low</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- JOB LISTINGS GRID -->
+          <div id="job-list" class="job-listings"></div>
+
+          <!-- PAGINATION -->
+          <div id="pagination-controls" class="pagination-controls"></div>
+        </main>
+      </div>
+    </div>
+  </section>
+
+  <!-- JOB CARD TEMPLATE (Premium Marketplace Style) -->
   <template id="job-card-template">
-    <article class="job-card">
-      <div class="job-card-top">
-        <div class="logo-circle">
-          <img class="logo-image" alt="Company logo">
-          <span class="logo-initials">DB</span>
+    <article class="marketplace-job-card">
+      <!-- CARD HEADER: Logo + Company Info -->
+      <div class="card-company-header">
+        <div class="company-logo-wrapper">
+          <img class="company-logo" alt="Company logo" />
+          <span class="company-initial">C</span>
         </div>
-        <div class="job-title-row">
+        <div class="company-info">
           <h3 class="job-title"></h3>
-          <p class="job-company"></p>
+          <div class="company-meta">
+            <p class="company-name"></p>
+            <span class="location-badge">
+              <i class="icon-location"></i>
+            </span>
+          </div>
+        </div>
+        <button class="card-save-btn" aria-label="Save job">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M3 2h14a1 1 0 011 1v14.5a1 1 0 01-1.5.87L10 14.13l-6.5 3.87A1 1 0 013 17.5V3a1 1 0 010-1z" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- CARD BODY: Description -->
+      <p class="job-summary"></p>
+
+      <!-- CARD META: Badges and Chips -->
+      <div class="card-meta-row">
+        <div class="badge-group">
+          <span class="badge badge-type"></span>
+          <span class="badge badge-remote"></span>
         </div>
       </div>
-      <div class="job-details-row">
-        <span class="badge badge-secondary">Full-Time</span>
-        <span class="badge badge-outline">Remote</span>
-        <span class="job-location"></span>
-      </div>
-      <p class="job-summary"></p>
-      <div class="job-tags"></div>
-      <div class="job-card-footer">
-        <div class="job-feature">
-          <span class="job-feature-label">Salary</span>
+
+      <!-- CARD SKILLS: Skill chips -->
+      <div class="skills-chips"></div>
+
+      <!-- CARD FOOTER: Salary + Apply -->
+      <div class="card-footer">
+        <div class="salary-display">
+          <span class="salary-label">Salary</span>
           <p class="job-salary"></p>
         </div>
-        <div class="job-feature">
-          <span class="job-feature-label">Apply</span>
-          <div class="job-application"></div>
-        </div>
+        <a class="btn-card-apply btn-primary">Apply now</a>
       </div>
     </article>
   </template>

@@ -86,10 +86,11 @@ select {
   position: fixed;
   inset: 0 0 auto 0;
   height: var(--header-height);
-  background: rgba(15, 23, 42, 0.96);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
-  backdrop-filter: blur(16px);
+  background: rgba(15, 23, 42, 0.98);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  backdrop-filter: blur(18px);
   z-index: 100;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .header-container {
@@ -97,72 +98,84 @@ select {
   align-items: center;
   justify-content: space-between;
   min-height: var(--header-height);
-  padding: 0 var(--spacing-lg);
+  padding: 0 2.5rem;
+  gap: 2rem;
 }
 
 .brand-group {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: 1.25rem;
 }
 
 .brand-mark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 52px;
-  border-radius: 18px;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
   background: var(--primary);
   color: #fff;
   font-weight: 800;
   letter-spacing: -0.02em;
+  font-size: 1rem;
 }
 
 .site-logo {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: #fff;
+  letter-spacing: -0.01em;
 }
 
 .header-subtitle {
-  margin: 0.25rem 0 0;
-  font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.75);
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.65);
+  max-width: 220px;
+  line-height: 1.4;
 }
 
 .header-nav {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
   flex-wrap: wrap;
+  margin-left: auto;
 }
 
 .nav-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.85rem 1.15rem;
-  border-radius: var(--radius-sm);
-  color: rgba(255, 255, 255, 0.92);
+  padding: 0.8rem 1.3rem;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.9);
   font-weight: 600;
-  transition: background var(--transition), transform var(--transition);
+  font-size: 0.95rem;
+  transition: all var(--transition);
+  white-space: nowrap;
 }
 
 .nav-link:hover,
 .nav-link:focus-visible {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
 }
 
 .nav-link.primary {
   background: var(--primary);
   color: #fff;
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
 }
 
 .nav-link.primary:hover,
 .nav-link.primary:focus-visible {
   background: var(--primary-hover);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4);
+  transform: translateY(-2px);
 }
 
 .icon-btn {
