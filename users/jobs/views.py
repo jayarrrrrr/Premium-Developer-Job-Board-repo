@@ -1,8 +1,10 @@
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from .models import JobPosting
-from .serializers import JobPostingSerializer
+from django.db import models
+from django.db.models import Q
+from .models import JobPosting, Job
+from .serializers import JobPostingSerializer, JobSerializer
 from .services import SearchService
 
 
@@ -23,6 +25,7 @@ class JobPostingPagination(PageNumberPagination):
 
 
 class JobPostingViewSet(viewsets.ReadOnlyModelViewSet):
+    """Legacy ViewSet for old JobPosting model."""
     queryset = JobPosting.objects.all()
     serializer_class = JobPostingSerializer
     pagination_class = JobPostingPagination
@@ -33,6 +36,33 @@ class JobPostingViewSet(viewsets.ReadOnlyModelViewSet):
         location = self.request.query_params.get('location')
         filters = SearchService.build_filters(search_term, location)
         return queryset.filter(filters)
+
+
+class JobViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet for new internal Job model with approved jobs only."""
+    queryset = Job.objects.filter(status=Job.STATUS_APPROVED)
+    serializer_class = JobSerializer
+    pagination_class = JobPostingPagination
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search_term = self.request.query_params.get('search')
+        location = self.request.query_params.get('location')
+        
+        # Filter by search term if provided
+        if search_term:
+            queryset = queryset.filter(
+                Q(title__icontains=search_term) |
+                Q(company__company_name__icontains=search_term) |
+                Q(description__icontains=search_term) |
+                Q(skills_required__icontains=search_term)
+            )
+        
+        # Filter by location if provided
+        if location:
+            queryset = queryset.filter(location__icontains=location)
+        
+        return queryset
 
 
 # Django web views for multi-role app

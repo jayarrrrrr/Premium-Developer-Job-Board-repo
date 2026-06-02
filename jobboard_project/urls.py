@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic.base import RedirectView
 from rest_framework.routers import DefaultRouter
-from users.jobs.views import JobPostingViewSet
+from users.jobs.views import JobPostingViewSet, JobViewSet as JobReadOnlyViewSet
 from users.views import LoginView, LogoutView, SignupView, SignupAPIView, PremiumTokenObtainPairView
 from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 from users.jobs.api import JobViewSet, ApplicationViewSet
@@ -18,8 +18,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 router = DefaultRouter()
-router.register(r'jobs', JobPostingViewSet, basename='jobposting')
-router.register(r'v2/jobs', JobViewSet, basename='api-jobs')
+router.register(r'jobs', JobReadOnlyViewSet, basename='api-jobs')  # Use new Job model (read-only)
+router.register(r'jobpostings', JobPostingViewSet, basename='jobposting')  # Keep legacy endpoint
+router.register(r'v2/jobs', JobViewSet, basename='api-jobs-v2')  # Full API endpoint
 router.register(r'v2/applications', ApplicationViewSet, basename='api-applications')
 
 urlpatterns = [

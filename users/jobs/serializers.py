@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import JobPosting
+from .models import JobPosting, Job
 
 
 class JobPostingSerializer(serializers.ModelSerializer):
@@ -28,6 +28,62 @@ class JobPostingSerializer(serializers.ModelSerializer):
             if request.user.profile.role == 'EMPLOYER' or request.user.profile.is_premium:
                 return obj.salary_range
         return 'Premium members only. Upgrade to view salary details.'
+
+    def get_application_link(self, obj):
+        return getattr(obj, 'application_link', '#')
+
+    def get_debug_info(self, obj):
+        return {}
+
+
+class JobSerializer(serializers.ModelSerializer):
+    """Serializer for the new internal Job model."""
+    company = serializers.CharField(source='company.company_name', read_only=True)
+    logo = serializers.SerializerMethodField()
+    salary_range = serializers.SerializerMethodField()
+    summary = serializers.CharField(source='description', read_only=True)
+    application_link = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Job
+        fields = [
+            'id',
+            'title',
+            'company',
+            'location',
+            'summary',
+            'salary_range',
+            'application_link',
+            'employment_type',
+            'skills_required',
+            'created_at',
+            'logo',
+        ]
+
+    def get_logo(self, obj):
+        """Get company logo URL if available."""
+        try:
+            if obj.company and obj.company.logo:
+                return obj.company.logo.url
+        except Exception:
+            pass
+        return None
+
+    def get_salary_range(self, obj):
+        """Show salary to premium users and employers only."""
+        request = self.context.get('request')
+        if request and getattr(request.user, 'is_authenticated', False):
+            profile = request.user.get_or_create_profile()
+            if profile.role == 'EMPLOYER' or profile.is_premium:
+                return obj.salary
+        return 'Premium members only. Upgrade to view salary details.'
+
+    def get_application_link(self, obj):
+        """Return the apply URL for the job."""
+        request = self.context.get('request')
+        if request:
+            return request.build_absolute_uri(f'/jobs/job/{obj.id}/apply/')
+        return f'/jobs/job/{obj.id}/apply/'
 
     def get_application_link(self, obj):
         request = self.context.get('request')
