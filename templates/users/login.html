@@ -1,79 +1,77 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <section class="signup-page">
-    <div class="main-container container">
-      <div class="signup-content">
+  <section class="auth-page">
+    <div class="container">
       <div class="signup-layout">
-      <main class="signup-main-card">
-        <div class="signup-card">
-          <div class="signup-badge">🔐 Welcome Back</div>
-          <div class="signup-header signup-header-center">
-            <div class="hero-icon">🔐</div>
-            <div>
-              <h1>Log in to your account</h1>
-              <p class="signup-subtitle">Access your premium developer marketplace account.</p>
-            </div>
-          </div>
-
-          {% if error %}
-            <div class="alert-error signup-alert">{{ error }}</div>
-          {% endif %}
-
-          <form method="post" action="" class="signup-form">
-            {% csrf_token %}
-            <div class="form-field">
-              <label>Username</label>
-              <div class="input-group">
-                <span class="input-icon"><i class="fa fa-user"></i></span>
-                <input type="text" name="username" placeholder="Enter your username" required autofocus />
+        <main class="signup-main-card card-modern">
+          <div class="signup-card">
+            <div class="signup-badge">🔐 Welcome Back</div>
+            <div class="signup-header signup-header-center">
+              <div class="hero-icon">🔐</div>
+              <div>
+                <h1>Log in to your account</h1>
+                <p class="signup-subtitle">Access your premium developer marketplace account.</p>
               </div>
             </div>
 
-            <div class="form-field">
-              <label>Password</label>
-              <div class="input-group">
-                <span class="input-icon"><i class="fa fa-lock"></i></span>
-                <input type="password" name="password" placeholder="Enter your password" required />
+            {% if error %}
+              <div class="alert alert-error">{{ error }}</div>
+            {% endif %}
+
+            <form method="post" action="" class="signup-form">
+              {% csrf_token %}
+              <div class="form-field">
+                <label class="form-label" for="id_username">Username</label>
+                <div class="input-group">
+                  <span class="input-icon"><i class="fa fa-user"></i></span>
+                  <input id="id_username" type="text" name="username" class="form-control" placeholder="Enter your username" required autofocus />
+                </div>
+              </div>
+
+              <div class="form-field">
+                <label class="form-label" for="id_password">Password</label>
+                <div class="input-group">
+                  <span class="input-icon"><i class="fa fa-lock"></i></span>
+                  <input id="id_password" type="password" name="password" class="form-control" placeholder="Enter your password" required />
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary">Log in</button>
+            </form>
+
+            <div class="signup-footer">
+              <p>Don't have an account? <a href="{% url 'signup' %}">Sign up</a></p>
+            </div>
+          </div>
+        </main>
+
+        <aside class="signup-premium-card card-modern">
+          <div class="plan-card premium-signup-card premium-plan-card">
+            <div class="plan-header">
+              <span class="plan-badge">✨ Premium Info</span>
+            </div>
+            <h2>Unlock more value</h2>
+            <p class="premium-copy">Log in to view salary ranges, direct application links, and prioritized listings for premium developers.</p>
+            <ul class="plan-benefits">
+              <li>✓ View salary ranges</li>
+              <li>✓ Access direct application links</li>
+              <li>✓ Advanced filters</li>
+              <li>✓ Priority listings</li>
+            </ul>
+            <div class="premium-stats stats-grid">
+              <div class="stat-card">
+                <p class="number stat-number">{{ active_jobs }}+</p>
+                <p class="label stat-label">Active Jobs</p>
+              </div>
+              <div class="stat-card">
+                <p class="number stat-number">{{ companies_hiring }}+</p>
+                <p class="label stat-label">Companies Hiring</p>
               </div>
             </div>
-
-            <button type="submit" class="primary-button">Log in</button>
-          </form>
-
-          <div class="signup-footer">
-            <p>Don't have an account? <a href="{% url 'signup' %}">Sign up</a></p>
+            <a href="{% url 'upgrade' %}" class="btn btn-primary">Upgrade Now</a>
           </div>
-        </div>
-      </main>
-
-      <aside class="signup-premium-card">
-        <div class="plan-card premium-signup-card premium-plan-card">
-          <div class="plan-header">
-            <div class="plan-badge">✨ Premium Info</div>
-          </div>
-          <h2>Unlock more value</h2>
-          <p class="premium-copy">Log in to view salary ranges, direct apply links, and prioritized listings for premium developers.</p>
-          <ul class="plan-benefits">
-            <li>✓ View salary ranges</li>
-            <li>✓ Access direct application links</li>
-            <li>✓ Advanced filters</li>
-            <li>✓ Priority listings</li>
-          </ul>
-          <div class="premium-stats stats-grid">
-            <div class="stat-card">
-              <p class="number stat-number">{{ active_jobs }}+</p>
-              <p class="label stat-label">Active Jobs</p>
-            </div>
-            <div class="stat-card">
-              <p class="number stat-number">{{ companies_hiring }}+</p>
-              <p class="label stat-label">Companies Hiring</p>
-            </div>
-          </div>
-          <a href="{% url 'upgrade' %}" class="upgrade-btn premium-cta">Upgrade Now</a>
-        </div>
-      </aside>
-      </div>
+        </aside>
       </div>
     </div>
   </section>

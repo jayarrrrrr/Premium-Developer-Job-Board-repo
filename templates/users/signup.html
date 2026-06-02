@@ -1,124 +1,127 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <section class="signup-page">
-    <div class="main-container container">
-      <div class="signup-content">
+  <section class="auth-page">
+    <div class="container">
       <div class="signup-layout">
-      <main class="signup-main-card">
-        <div class="signup-card">
-          <div class="signup-badge">🚀 Start Your Developer Journey</div>
-          <div class="signup-header signup-header-center">
-            <div class="hero-icon">👤</div>
-            <div>
-              <h1>Create Your Account</h1>
-              <p class="signup-subtitle">Join thousands of developers and employers discovering premium opportunities.</p>
+        <main class="signup-main-card card-modern">
+          <div class="signup-card">
+            <div class="signup-badge">🚀 Start Your Developer Journey</div>
+            <div class="signup-header signup-header-center">
+              <div class="hero-icon">👤</div>
+              <div>
+                <h1>Create Your Account</h1>
+                <p class="signup-subtitle">Join thousands of developers and employers discovering premium opportunities.</p>
+              </div>
             </div>
-          </div>
 
-          {% if errors %}
-            <div class="alert-error signup-alert">
-              <strong>Signup failed</strong>
-              <ul>
-                {% for field, messages in errors.items %}
-                  <li>{{ field }}: {{ messages|join:", " }}</li>
-                {% endfor %}
-              </ul>
-            </div>
-          {% endif %}
+            {% if errors %}
+              <div class="alert alert-error">
+                <strong>Signup failed</strong>
+                <ul>
+                  {% for field, messages in errors.items %}
+                    <li>{{ field }}: {{ messages|join:", " }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
 
-          <form id="signup-form" method="post" action="" class="signup-form">
-            {% csrf_token %}
-            <div class="account-type-grid">
-              <label class="account-type-option">
-                <input type="radio" name="role" value="JOB_SEEKER" checked />
-                <div class="account-type-card">
-                  <div class="account-type-icon">👤</div>
-                  <h3>Job Seeker</h3>
-                  <p>Browse jobs, save opportunities, and apply to positions.</p>
+            <form id="signup-form" method="post" action="" class="signup-form">
+              {% csrf_token %}
+              <div class="account-type-grid">
+                <label class="account-type-option">
+                  <input type="radio" name="role" value="JOB_SEEKER" checked />
+                  <div class="account-type-card">
+                    <div class="account-type-icon">👤</div>
+                    <h3>Job Seeker</h3>
+                    <p>Browse jobs, save opportunities, and apply to positions.</p>
+                  </div>
+                </label>
+                <label class="account-type-option">
+                  <input type="radio" name="role" value="EMPLOYER" />
+                  <div class="account-type-card">
+                    <div class="account-type-icon">🏢</div>
+                    <h3>Employer</h3>
+                    <p>Post jobs, manage listings, and review applicants.</p>
+                  </div>
+                </label>
+              </div>
+
+              <div class="form-field">
+                <label class="form-label" for="id_username">Username</label>
+                <div class="input-group">
+                  <span class="input-icon"><i class="fa fa-user"></i></span>
+                  <input id="id_username" type="text" name="username" class="form-control" placeholder="Enter your username" required />
                 </div>
-              </label>
-              <label class="account-type-option">
-                <input type="radio" name="role" value="EMPLOYER" />
-                <div class="account-type-card">
-                  <div class="account-type-icon">🏢</div>
-                  <h3>Employer</h3>
-                  <p>Post jobs, manage listings, and review applicants.</p>
+              </div>
+
+              <div class="form-field">
+                <label class="form-label" for="id_email">Email</label>
+                <div class="input-group">
+                  <span class="input-icon"><i class="fa fa-envelope"></i></span>
+                  <input id="id_email" type="email" name="email" class="form-control" placeholder="you@example.com" required />
                 </div>
-              </label>
-            </div>
-            <div class="form-field">
-              <label>Username</label>
-              <div class="input-group">
-                <span class="input-icon"><i class="fa fa-user"></i></span>
-                <input type="text" name="username" placeholder="Enter your username" required />
               </div>
-            </div>
-            <div class="form-field">
-              <label>Email</label>
-              <div class="input-group">
-                <span class="input-icon"><i class="fa fa-envelope"></i></span>
-                <input type="email" name="email" placeholder="you@example.com" required />
-              </div>
-            </div>
-            <div class="form-field">
-              <label>Password</label>
-              <div class="input-group">
-                <span class="input-icon"><i class="fa fa-lock"></i></span>
-                <input type="password" name="password" placeholder="Create a password" required />
-              </div>
-            </div>
-            <div class="form-field">
-              <label>Confirm Password</label>
-              <div class="input-group">
-                <span class="input-icon"><i class="fa fa-lock"></i></span>
-                <input type="password" name="confirm_password" placeholder="Confirm your password" required />
-              </div>
-            </div>
-            <div class="honeypot-field">
-              <label>
-                Leave this field blank
-                <input type="text" name="{{ honeypot_name }}" autocomplete="off" />
-              </label>
-            </div>
 
-            <button type="submit" class="primary-button">Create Account</button>
-          </form>
+              <div class="form-field">
+                <label class="form-label" for="id_password">Password</label>
+                <div class="input-group">
+                  <span class="input-icon"><i class="fa fa-lock"></i></span>
+                  <input id="id_password" type="password" name="password" class="form-control" placeholder="Create a password" required />
+                </div>
+              </div>
 
-          <div class="signup-footer">
-            <p>Already have an account? <a href="{% url 'login' %}">Log In</a></p>
-            <p class="muted-copy">By creating an account, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
-          </div>
-        </div>
-      </main>
+              <div class="form-field">
+                <label class="form-label" for="id_confirm_password">Confirm Password</label>
+                <div class="input-group">
+                  <span class="input-icon"><i class="fa fa-lock"></i></span>
+                  <input id="id_confirm_password" type="password" name="confirm_password" class="form-control" placeholder="Confirm your password" required />
+                </div>
+              </div>
 
-      <aside class="signup-premium-card">
-        <div class="plan-card premium-signup-card premium-plan-card">
-          <div class="plan-header">
-            <div class="plan-badge">⭐ Most Popular Plan</div>
-          </div>
-          <h2>₱199<span>/month</span></h2>
-          <p>Unlock the full developer marketplace experience.</p>
-          <ul class="plan-benefits">
-            <li>✓ View salary ranges</li>
-            <li>✓ Access direct application links</li>
-            <li>✓ Advanced filters</li>
-            <li>✓ Priority job listings</li>
-          </ul>
-          <div class="premium-stats stats-grid">
-            <div class="stat-card">
-              <p class="number stat-number">{{ active_jobs }}+</p>
-              <p class="label stat-label">Active Jobs</p>
-            </div>
-            <div class="stat-card">
-              <p class="number stat-number">{{ companies_hiring }}+</p>
-              <p class="label stat-label">Companies Hiring</p>
+              <div class="honeypot-field">
+                <label>
+                  Leave this field blank
+                  <input type="text" name="{{ honeypot_name }}" autocomplete="off" />
+                </label>
+              </div>
+
+              <button type="submit" class="btn btn-primary">Create Account</button>
+            </form>
+
+            <div class="signup-footer">
+              <p>Already have an account? <a href="{% url 'login' %}">Log In</a></p>
+              <p class="muted-copy">By creating an account, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
             </div>
           </div>
-          <a href="{% url 'upgrade' %}" class="upgrade-btn premium-cta">Upgrade Now</a>
-        </div>
-      </aside>
-      </div>
+        </main>
+
+        <aside class="signup-premium-card card-modern">
+          <div class="plan-card premium-signup-card premium-plan-card">
+            <div class="plan-header">
+              <span class="plan-badge">⭐ Most Popular Plan</span>
+            </div>
+            <h2>₱199<span>/month</span></h2>
+            <p>Unlock the full developer marketplace experience.</p>
+            <ul class="plan-benefits">
+              <li>✓ View salary ranges</li>
+              <li>✓ Access direct application links</li>
+              <li>✓ Advanced filters</li>
+              <li>✓ Priority job listings</li>
+            </ul>
+            <div class="premium-stats stats-grid">
+              <div class="stat-card">
+                <p class="number stat-number">{{ active_jobs }}+</p>
+                <p class="label stat-label">Active Jobs</p>
+              </div>
+              <div class="stat-card">
+                <p class="number stat-number">{{ companies_hiring }}+</p>
+                <p class="label stat-label">Companies Hiring</p>
+              </div>
+            </div>
+            <a href="{% url 'upgrade' %}" class="btn btn-primary">Upgrade Now</a>
+          </div>
+        </aside>
       </div>
     </div>
 

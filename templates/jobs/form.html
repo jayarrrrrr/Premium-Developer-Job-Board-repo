@@ -5,12 +5,14 @@
     <div class="hero-copy">
       <p class="eyebrow">Post a job</p>
       <h1>{% if creating %}Create Job{% else %}Edit Job{% endif %}</h1>
+      <p class="hero-text">Build a premium job listing with rich details to attract senior developers.</p>
     </div>
-    <div class="plan-card">
+
+    <div class="plan-card card-modern">
       <form method="post" class="signup-form">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit" class="upgrade-btn">Save Job</button>
+        <button type="submit" class="btn btn-primary">Save Job</button>
       </form>
     </div>
   </section>

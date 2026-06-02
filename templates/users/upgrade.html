@@ -7,7 +7,7 @@
       <h1>Upgrade your developer job experience</h1>
       <p class="hero-text">Gain instant access to salary ranges, direct application links, advanced filters, and priority listings designed for serious developers.</p>
     </div>
-    <div class="plan-card">
+    <div class="plan-card card-modern">
       <div class="plan-header">
         <span class="plan-badge">⭐ Premium Membership</span>
       </div>
@@ -23,9 +23,9 @@
       {% with profile=user.get_or_create_profile %}
         {% if profile.is_premium %}
           <div class="badge-premium">⭐ You are already a Premium Member</div>
-          <a href="{% url 'dashboard' %}" class="upgrade-btn">Go to dashboard</a>
+          <a href="{% url 'dashboard' %}" class="btn btn-secondary">Go to dashboard</a>
         {% else %}
-          <a href="{% url 'payment' %}" class="upgrade-btn">Upgrade Now</a>
+          <a href="{% url 'payment' %}" class="btn btn-primary">Upgrade Now</a>
         {% endif %}
       {% endwith %}
     </div>

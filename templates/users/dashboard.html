@@ -5,7 +5,7 @@
   <section class="dashboard-hero">
     <div class="hero-copy">
       <p class="eyebrow">Job Seeker Dashboard</p>
-      <div style="display:flex;align-items:center;gap:1rem;">
+      <div class="dashboard-hero-grid">
         {% with profile=user_profile.get_or_create_profile %}
           {% if profile.profile_picture %}
             <img src="{{ profile.profile_picture.url }}" alt="Profile" class="profile-avatar-large">
@@ -26,7 +26,7 @@
   </section>
 
   <section class="dashboard-grid">
-    <div class="dashboard-card">
+    <div class="dashboard-card card-modern">
       <h2>Account status</h2>
       <p>Username: <strong>{{ user_profile.username }}</strong></p>
       <p>Email: <strong>{{ user_profile.email }}</strong></p>
@@ -36,10 +36,10 @@
         <p>Expires: <strong>{{ user_profile.premium_expires_at|date:'F j, Y' }}</strong></p>
       {% else %}
         <p class="premium-note">Upgrade now to unlock premium salary and application details.</p>
-        <a href="{% url 'upgrade' %}" class="upgrade-btn">Upgrade to Premium</a>
+        <a href="{% url 'upgrade' %}" class="btn btn-primary">Upgrade to Premium</a>
       {% endif %}
     </div>
-    <div class="dashboard-card">
+    <div class="dashboard-card card-modern">
       <h2>Premium benefits</h2>
       <ul class="plan-benefits">
         <li>✓ View salary ranges</li>

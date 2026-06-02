@@ -5,59 +5,96 @@
     <div class="hero-copy">
       <p class="eyebrow">{{ job.title }}</p>
       <h1>{{ job.title }}</h1>
-      <p class="hero-text">{{ job.company.company_name }} — {{ job.location }}</p>
-    </div>
-    <div class="plan-card">
-      <h2>About the role</h2>
-      <p>{{ job.description }}</p>
-      <h3>Requirements</h3>
-      <p>{{ job.skills_required }}</p>
-      <h3>Salary</h3>
-      {% if can_view_salary %}
-        <p><strong>{{ job.salary }}</strong></p>
-      {% else %}
-        <p class="job-locked">🔒 Premium Feature — Upgrade to view salary</p>
-        <a href="{% url 'upgrade' %}" class="upgrade-btn">Upgrade to Premium</a>
-      {% endif %}
-
-      <h3>Apply Now</h3>
-      {% if user.is_authenticated %}
-        {% if can_apply %}
-          {% if already_applied %}
-            <p class="job-locked">✓ You have already applied for this job</p>
-          {% else %}
-            <a href="{% url 'apply_job' job.pk %}" class="apply-button">Apply Now</a>
-          {% endif %}
-        {% else %}
-          <p class="job-locked">🔒 Premium Feature — Upgrade to Premium to Apply</p>
-          <a href="{% url 'upgrade' %}" class="upgrade-btn">Upgrade to Premium</a>
-        {% endif %}
-      {% else %}
-        <p><a href="{% url 'login' %}">Log in</a> to apply for this job.</p>
-      {% endif %}
+      <p class="hero-text">{{ job.company.company_name }} • {{ job.location }}</p>
     </div>
   </section>
 
-  <style>
-    .apply-button {
-      display: inline-block;
-      background-color: #4caf50;
-      color: white;
-      padding: 0.75rem 1.5rem;
-      border-radius: 0.5rem;
-      text-decoration: none;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-    }
+  <div class="job-detail-grid">
+    <div class="job-overview card-modern">
+      <div class="job-card-top">
+        <div class="logo-circle">
+          {% if job.company.logo %}
+            <img src="{{ job.company.logo.url }}" alt="{{ job.company.company_name }} logo" class="logo-image" />
+          {% else %}
+            <span class="logo-initials">{{ job.company.company_name|slice:":2"|upper }}</span>
+          {% endif %}
+        </div>
+        <div class="job-title-row">
+          <h2 class="job-title">{{ job.title }}</h2>
+          <p class="job-company">{{ job.company.company_name }}</p>
+        </div>
+      </div>
 
-    .apply-button:hover {
-      background-color: #45a049;
-    }
+      <div class="job-details-row">
+        <span class="badge badge-secondary">{{ job.employment_type|default:'Full-Time' }}</span>
+        <span class="badge badge-outline">{{ job.location }}</span>
+        <span class="badge">Remote</span>
+      </div>
 
-    .job-locked {
-      color: #ff9800;
-      font-weight: 500;
-    }
-  </style>
+      <div class="job-overview">
+        <div>
+          <h3>About the role</h3>
+          <p class="job-summary">{{ job.description }}</p>
+        </div>
+        <div>
+          <h3>Requirements</h3>
+          <p class="job-summary">{{ job.skills_required }}</p>
+        </div>
+        <div class="job-stats">
+          <div class="job-stat">
+            <span>Posted</span>
+            <strong>{{ job.created_at|date:'F j, Y' }}</strong>
+          </div>
+          <div class="job-stat">
+            <span>Location</span>
+            <strong>{{ job.location }}</strong>
+          </div>
+          <div class="job-stat">
+            <span>Company</span>
+            <strong>{{ job.company.company_name }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="sticky-sidebar">
+      <div class="job-detail-panel card-modern sticky-apply-card">
+        <div>
+          <h3>Apply information</h3>
+          <p class="small-copy">{# Keep the process clear and premium-ready for job seekers. #}</p>
+        </div>
+        <div class="job-details-row">
+          <span class="badge badge-secondary">Salary</span>
+          {% if can_view_salary %}
+            <strong>{{ job.salary }}</strong>
+          {% else %}
+            <span class="badge badge-premium">Premium</span>
+          {% endif %}
+        </div>
+        {% if can_view_salary %}
+          <p class="small-copy">Salary range is available for premium members and verified employers.</p>
+        {% else %}
+          <p class="job-summary">🔒 Premium Feature — Upgrade to view salary</p>
+          <a href="{% url 'upgrade' %}" class="btn btn-primary">Upgrade to Premium</a>
+        {% endif %}
+
+        <div>
+          {% if user.is_authenticated %}
+            {% if can_apply %}
+              {% if already_applied %}
+                <p class="job-summary">✓ You have already applied for this job.</p>
+              {% else %}
+                <a href="{% url 'apply_job' job.pk %}" class="btn btn-primary">Apply Now</a>
+              {% endif %}
+            {% else %}
+              <p class="job-summary">🔒 Premium Feature — Upgrade to Premium to Apply</p>
+              <a href="{% url 'upgrade' %}" class="btn btn-primary">Upgrade to Premium</a>
+            {% endif %}
+          {% else %}
+            <p class="job-summary">Please <a href="{% url 'login' %}">log in</a> to apply.</p>
+          {% endif %}
+        </div>
+      </div>
+    </aside>
+  </div>
 {% endblock %}

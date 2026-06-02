@@ -1,51 +1,76 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <section class="hero-section">
+  <section class="hero-section jobs-hero">
     <div class="hero-copy">
       <p class="eyebrow">Premium Developer Opportunities</p>
       <h1>Find Your Next Developer Job</h1>
-      <p class="hero-text">Discover premium software engineering opportunities from top companies.</p>
+      <p class="hero-text">Discover premium software engineering roles from leading tech teams and remote-first companies.</p>
     </div>
-    <div class="hero-search-card">
-      <form id="search-form" class="hero-search-form">
-        <div class="search-input-group">
-          <label for="search-input">What</label>
-          <input type="text" name="search" id="search-input" placeholder="Job title, skill, or company" />
+    <div class="hero-search-card card-modern">
+      <form id="search-form" class="signup-form">
+        <div class="form-field">
+          <label for="search-input" class="form-label">Search jobs</label>
+          <input type="text" name="search" id="search-input" class="form-control" placeholder="Job title, skill, or company" />
         </div>
-        <div class="search-input-group">
-          <label for="location-input">Where</label>
-          <input type="text" name="location" id="location-input" placeholder="Remote, New York, London" />
+        <div class="form-field">
+          <label for="location-input" class="form-label">Location</label>
+          <input type="text" name="location" id="location-input" class="form-control" placeholder="Remote, New York, London" />
         </div>
-        <button type="submit" class="search-button">Search Jobs</button>
+        <button type="submit" class="btn btn-primary">Search Jobs</button>
       </form>
     </div>
   </section>
 
-  <section class="stats-grid">
-    <div class="stat-card">
-      <p class="stat-number">{{ active_jobs }}</p>
-      <p class="stat-label">Active Jobs</p>
-    </div>
-    <div class="stat-card">
-      <p class="stat-number">{{ companies_hiring }}</p>
-      <p class="stat-label">Companies Hiring</p>
-    </div>
-    <div class="stat-card">
-      <p class="stat-number">{{ developers_hired }}</p>
-      <p class="stat-label">Developers Hired</p>
-    </div>
-  </section>
+  <section class="jobs-page">
+    <div class="jobs-page-grid">
+      <aside class="job-sidebar card-modern filter-panel">
+        <div>
+          <h3>Filter results</h3>
+          <p class="small-copy">Use search and tags to narrow down the best opportunities.</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Employment type</label>
+          <select class="form-control" name="job_type">
+            <option value="">Any type</option>
+            <option value="full-time">Full-Time</option>
+            <option value="contract">Contract</option>
+            <option value="remote">Remote</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Team size</label>
+          <select class="form-control" name="team_size">
+            <option value="">Any size</option>
+            <option value="startup">Startup</option>
+            <option value="scaleup">Scale-up</option>
+            <option value="enterprise">Enterprise</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Premium status</label>
+          <div class="job-tags">
+            <span class="job-tag">Premium</span>
+            <span class="job-tag">Remote</span>
+            <span class="job-tag">Flexible</span>
+          </div>
+        </div>
+      </aside>
 
-  <section class="results-pane">
-    <div class="results-header">
-      <div>
-        <h2>Job listings</h2>
-        <p>Scroll through featured developer roles and filter with the search bar above.</p>
+      <div class="jobs-main">
+        <section class="results-pane">
+          <div class="results-header">
+            <div>
+              <h2>Job listings</h2>
+              <p>Scroll through featured developer roles and filter with the search bar above.</p>
+            </div>
+            <div class="badge badge-secondary">{{ active_jobs }}+ live roles</div>
+          </div>
+          <div id="job-list" class="jobs-grid"></div>
+          <div id="pagination-controls" class="pagination"></div>
+        </section>
       </div>
     </div>
-    <div id="job-list" class="jobs-grid"></div>
-    <div id="pagination-controls" class="pagination"></div>
   </section>
 
   <template id="job-card-template">

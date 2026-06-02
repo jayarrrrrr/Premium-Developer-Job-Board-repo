@@ -1,0 +1,280 @@
+.hero-section,
+.dashboard-hero {
+  padding: 3rem 0 1.5rem;
+}
+
+.hero-copy {
+  max-width: 720px;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.85rem;
+  color: var(--primary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hero-copy h1,
+.hero-copy h2,
+.hero-copy h3 {
+  margin: 0;
+  color: var(--text);
+}
+
+.hero-text {
+  margin-top: 0.85rem;
+  max-width: 680px;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.dashboard-card {
+  min-height: 220px;
+}
+
+.profile-preview {
+  display: grid;
+  gap: 1rem;
+  align-items: center;
+}
+
+.profile-preview h3 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.premium-copy,
+.premium-note {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.signup-page {
+  padding-top: 2rem;
+  padding-bottom: 3rem;
+}
+
+.signup-layout {
+  display: grid;
+  grid-template-columns: 1.9fr 1.1fr;
+  gap: 1.5rem;
+}
+
+.signup-main-card,
+.signup-premium-card {
+  width: 100%;
+}
+
+.signup-card {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.signup-badge,
+.plan-badge,
+.premium-card-header span {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.55rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.signup-header {
+  display: grid;
+  gap: 1rem;
+}
+
+.signup-header-center {
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+.hero-icon {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: rgba(37, 99, 235, 0.08);
+  font-size: 1.5rem;
+}
+
+.signup-subtitle {
+  margin: 0;
+  color: var(--muted);
+}
+
+.signup-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.signup-footer {
+  margin-top: 0.5rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.signup-footer a {
+  color: var(--primary);
+}
+
+.premium-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.stat-card {
+  padding: 1rem;
+  background: #F8FAFC;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+}
+
+.stat-number {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.stat-label {
+  margin: 0.45rem 0 0;
+  color: var(--muted);
+}
+
+.payment-card,
+.plan-card {
+  max-width: 700px;
+  margin-top: 1.5rem;
+}
+
+.payment-card h2,
+.plan-card h2 {
+  margin-bottom: 1rem;
+}
+
+.auth-page {
+  padding-top: 2.5rem;
+  padding-bottom: 3rem;
+}
+
+.job-detail-grid {
+  margin-top: 1.5rem;
+}
+
+.jobs-page {
+  margin-top: 1.5rem;
+}
+
+.jobs-page-grid {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 1.5rem;
+}
+
+.job-sidebar {
+  min-width: 280px;
+}
+
+.jobs-main {
+  display: grid;
+  gap: 1rem;
+}
+
+.hero-search-card {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+}
+
+.hero-search-card .signup-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.dashboard-hero-grid {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+@media screen and (max-width: 980px) {
+  .jobs-page-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.payment-card p,
+.plan-card p {
+  color: var(--muted);
+}
+
+.plan-price {
+  font-size: 2.35rem;
+  font-weight: 800;
+  margin: 0.75rem 0 1rem;
+}
+
+.plan-price span {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.job-listing-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.job-listing-panel .hero-section {
+  padding-bottom: 0;
+}
+
+.filter-panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.filter-panel h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+@media screen and (max-width: 980px) {
+  .signup-layout,
+  .payment-card,
+  .plan-card {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media screen and (max-width: 720px) {
+  .hero-section,
+  .dashboard-hero,
+  .signup-page {
+    padding-top: 1.5rem;
+  }
+
+  .signup-layout {
+    grid-template-columns: 1fr;
+  }
+}
