@@ -106,13 +106,19 @@ class EmployerRequiredMixin(UserPassesTestMixin):
 
 class JobCreateView(LoginRequiredMixin, EmployerRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        form = JobForm()
+        form = JobForm(user=request.user)
         return render(request, 'jobs/form.html', {'form': form, 'creating': True})
 
     def post(self, request, *args, **kwargs):
-        form = JobForm(request.POST)
+        form = JobForm(request.POST, user=request.user)
         if form.is_valid():
             job = form.save(commit=False)
+            # If a new company name was provided, create the company and assign it
+            company_name = form.cleaned_data.get('company_name')
+            if not job.company and company_name:
+                company = Company.objects.create(employer=request.user, company_name=company_name)
+                job.company = company
+
             job.employer = request.user
             # default to pending for admin approval
             job.status = Job.STATUS_PENDING
@@ -126,15 +132,20 @@ class JobUpdateView(LoginRequiredMixin, View):
         job = get_object_or_404(Job, pk=pk)
         if job.employer != request.user and not request.user.is_staff:
             return redirect('job_list')
-        form = JobForm(instance=job)
+        form = JobForm(instance=job, user=request.user)
         return render(request, 'jobs/form.html', {'form': form, 'job': job})
 
     def post(self, request, pk, *args, **kwargs):
         job = get_object_or_404(Job, pk=pk)
         if job.employer != request.user and not request.user.is_staff:
             return redirect('job_list')
-        form = JobForm(request.POST, instance=job)
+        form = JobForm(request.POST, instance=job, user=request.user)
         if form.is_valid():
+            # If a new company name was provided, create or assign it
+            company_name = form.cleaned_data.get('company_name')
+            if not form.instance.company and company_name:
+                company = Company.objects.create(employer=request.user, company_name=company_name)
+                form.instance.company = company
             form.save()
             return redirect('employer_dashboard')
         return render(request, 'jobs/form.html', {'form': form, 'job': job})

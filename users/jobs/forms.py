@@ -31,9 +31,30 @@ class CompanyForm(forms.ModelForm):
 
 
 class JobForm(forms.ModelForm):
+    # Allow employers to either pick one of their existing companies or type a new company name.
+    company_name = forms.CharField(required=False, label='New company name')
+
     class Meta:
         model = Job
-        fields = ['company', 'title', 'description', 'location', 'salary', 'employment_type', 'skills_required', 'application_url']
+        fields = ['company', 'company_name', 'title', 'description', 'location', 'salary', 'employment_type', 'skills_required', 'application_url']
+
+    def __init__(self, *args, **kwargs):
+        # Accept an optional `user` kwarg to scope available companies to that employer
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user is not None:
+            self.fields['company'].queryset = Company.objects.filter(employer=user)
+
+    def clean(self):
+        cleaned = super().clean()
+        company = cleaned.get('company')
+        company_name = cleaned.get('company_name')
+
+        # If no existing company selected, require a new company name
+        if not company and not company_name:
+            raise ValidationError('Please select an existing company or enter a new company name.')
+
+        return cleaned
 
 
 class ApplicationForm(forms.ModelForm):
