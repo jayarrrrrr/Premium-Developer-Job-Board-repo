@@ -10,13 +10,17 @@
 .eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  margin-bottom: 0.85rem;
+  gap: 0.5rem;
+  margin-bottom: 1.2rem;
   color: var(--primary);
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%);
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  width: fit-content;
 }
 
 .hero-copy h1,
@@ -24,14 +28,19 @@
 .hero-copy h3 {
   margin: 0;
   color: var(--text);
+  background: linear-gradient(135deg, var(--text) 0%, var(--text-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .hero-text {
-  margin-top: 0.85rem;
+  margin-top: 1rem;
   max-width: 680px;
   color: var(--muted);
-  font-size: 1rem;
+  font-size: 1.05rem;
   line-height: 1.8;
+  font-weight: 500;
 }
 
 .dashboard-grid {
