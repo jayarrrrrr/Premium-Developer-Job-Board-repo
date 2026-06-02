@@ -110,7 +110,7 @@ class JobCreateView(LoginRequiredMixin, EmployerRequiredMixin, View):
             job = form.save(commit=False)
             # If a new company name was provided, create the company and assign it
             company_name = form.cleaned_data.get('company_name')
-            if not job.company and company_name:
+            if not job.company_id and company_name:
                 company = Company.objects.create(employer=request.user, company_name=company_name)
                 job.company = company
 
@@ -138,7 +138,7 @@ class JobUpdateView(LoginRequiredMixin, View):
         if form.is_valid():
             # If a new company name was provided, create or assign it
             company_name = form.cleaned_data.get('company_name')
-            if not form.instance.company and company_name:
+            if not form.instance.company_id and company_name:
                 company = Company.objects.create(employer=request.user, company_name=company_name)
                 form.instance.company = company
             form.save()
