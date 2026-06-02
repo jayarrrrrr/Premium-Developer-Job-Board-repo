@@ -32,7 +32,7 @@ class CompanyForm(forms.ModelForm):
 
 class JobForm(forms.ModelForm):
     # Allow employers to either pick one of their existing companies or type a new company name.
-    company_name = forms.CharField(required=False, label='New company name')
+    company_name = forms.CharField(required=False, label='company name')
 
     class Meta:
         model = Job
