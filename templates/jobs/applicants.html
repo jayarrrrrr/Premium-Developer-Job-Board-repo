@@ -5,11 +5,11 @@
     <div class="hero-copy">
       <p class="eyebrow">Job Applications</p>
       <h1>{{ job.title }}</h1>
-      <p class="hero-text">{{ job.company.company_name }} • {{ job.location }}</p>
+      <p class="hero-text">{{ job.company.company_name }} · {{ job.location }}</p>
     </div>
   </section>
 
-  <section class="results-pane" style="max-width: 1000px; margin: 0 auto;">
+  <section class="results-pane">
     <div class="results-header">
       <div>
         <h2>Applicants</h2>
@@ -18,12 +18,15 @@
     </div>
 
     {% if applicants %}
-      <div class="applicants-list">
+      <div class="jobs-grid">
         {% for application in applicants %}
-          <div class="applicant-card">
+          <article class="card-modern applicant-card">
             <div class="applicant-header">
-              <h3>{{ application.full_name }}</h3>
-              <span class="applied-date">Applied {{ application.applied_at|date:"M d, Y" }}</span>
+              <div>
+                <h3>{{ application.full_name }}</h3>
+                <p class="job-company">Applied {{ application.applied_at|date:"M d, Y" }}</p>
+              </div>
+              <span class="badge badge-secondary">{{ application.status|default:'Submitted'|capfirst }}</span>
             </div>
 
             <div class="applicant-info">
@@ -36,148 +39,25 @@
 
             {% if application.cover_letter %}
               <div class="applicant-cover">
-                <strong>Cover Letter:</strong>
+                <strong>Cover letter</strong>
                 <p>{{ application.cover_letter|truncatewords:50 }}</p>
               </div>
             {% endif %}
 
             <div class="applicant-actions">
               {% if application.resume %}
-                <a href="{{ application.resume.url }}" class="btn-primary" download>Download Resume</a>
+                <a href="{{ application.resume.url }}" class="btn-primary" download>Download resume</a>
               {% endif %}
             </div>
-          </div>
+          </article>
         {% endfor %}
       </div>
     {% else %}
-      <div class="empty-state">
-        <p>No applications yet for this job.</p>
+      <div class="card-modern" style="text-align: center; padding: 3rem 2rem;">
+        <p class="eyebrow">No applicants yet</p>
+        <h2>Waiting for the right talent</h2>
+        <p class="hero-text">Share the job more broadly and review applicants as they arrive.</p>
       </div>
     {% endif %}
   </section>
-
-  <style>
-    .applicant-card {
-      border: 1px solid #e0e0e0;
-      border-radius: 0.5rem;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      background-color: #f9f9f9;
-      transition: box-shadow 0.2s ease;
-    }
-
-    .applicant-card:hover {
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .applicant-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-      border-bottom: 2px solid #eee;
-      padding-bottom: 0.75rem;
-    }
-
-    .applicant-header h3 {
-      margin: 0;
-      font-size: 1.25rem;
-      color: #333;
-    }
-
-    .applied-date {
-      color: #999;
-      font-size: 0.875rem;
-    }
-
-    .applicant-info {
-      margin-bottom: 1rem;
-    }
-
-    .applicant-info p {
-      margin: 0.5rem 0;
-      color: #555;
-    }
-
-    .applicant-info a {
-      color: #1976d2;
-      text-decoration: none;
-    }
-
-    .applicant-info a:hover {
-      text-decoration: underline;
-    }
-
-    .applicant-cover {
-      background-color: #fff;
-      padding: 1rem;
-      border-left: 4px solid #1976d2;
-      margin-bottom: 1rem;
-      border-radius: 0.25rem;
-    }
-
-    .applicant-cover strong {
-      display: block;
-      margin-bottom: 0.5rem;
-      color: #333;
-    }
-
-    .applicant-cover p {
-      margin: 0;
-      color: #666;
-      line-height: 1.5;
-    }
-
-    .applicant-actions {
-      display: flex;
-      gap: 0.75rem;
-    }
-
-    .btn-primary {
-      display: inline-block;
-      background-color: #1976d2;
-      color: white;
-      padding: 0.75rem 1.5rem;
-      border-radius: 0.5rem;
-      text-decoration: none;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-    }
-
-    .btn-primary:hover {
-      background-color: #1565c0;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 3rem 1rem;
-      color: #999;
-    }
-
-    .results-header {
-      margin-bottom: 2rem;
-    }
-
-    .results-header h2 {
-      margin: 0 0 0.5rem 0;
-    }
-
-    .results-header p {
-      margin: 0;
-      color: #666;
-    }
-
-    @media (max-width: 768px) {
-      .applicant-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-      }
-
-      .applied-date {
-        align-self: flex-start;
-      }
-    }
-  </style>
 {% endblock %}

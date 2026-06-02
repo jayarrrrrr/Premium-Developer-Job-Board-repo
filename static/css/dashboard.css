@@ -190,6 +190,69 @@
   gap: 1.5rem;
 }
 
+.applicant-card {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.applicant-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.applicant-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.applicant-header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.applicant-info {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.applicant-info p {
+  margin: 0;
+  color: var(--text);
+}
+
+.applicant-info a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.applicant-info a:hover {
+  text-decoration: underline;
+}
+
+.applicant-cover {
+  padding: 1rem;
+  border-radius: var(--radius-sm);
+  background: rgba(37, 99, 235, 0.06);
+  border-left: 4px solid rgba(37, 99, 235, 0.7);
+}
+
+.applicant-cover p {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+.applicant-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
 .job-sidebar {
   min-width: 280px;
 }

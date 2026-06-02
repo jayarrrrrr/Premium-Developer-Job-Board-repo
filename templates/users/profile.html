@@ -3,9 +3,9 @@
 
 {% block content %}
   <section class="hero-section">
-    <div class="hero-copy">
+    <div class="hero-copy profile-hero-copy">
       <p class="eyebrow">Your Profile</p>
-      <div style="display:flex;align-items:center;gap:1rem;">
+      <div class="profile-header-card card-modern">
         {% with profile=user_profile.get_or_create_profile %}
           {% if profile.profile_picture %}
             <img src="{{ profile.profile_picture.url }}" alt="Profile" class="profile-avatar-large">
@@ -17,33 +17,37 @@
             {% endif %}
           {% endif %}
         {% endwith %}
-        <div>
-          <h1 style="margin:0">{{ user_profile.get_full_name|default:user_profile.username }}</h1>
-          <p style="margin:0;color:var(--muted)">{{ user_profile.username }} • {{ user_profile.email }}</p>
+        <div class="profile-header-copy">
+          <h1>{{ user_profile.get_full_name|default:user_profile.username }}</h1>
+          <p class="hero-text">{{ user_profile.username }} • {{ user_profile.email }}</p>
         </div>
       </div>
     </div>
   </section>
 
   <section class="dashboard-grid">
-    <div class="dashboard-card">
+    <div class="dashboard-card card-modern">
       <h2>Account Details</h2>
-      <p><strong>Username:</strong> {{ user_profile.username }}</p>
-      <p><strong>Email:</strong> {{ user_profile.email }}</p>
-      <p><strong>Premium status:</strong> {% if profile.is_premium %}Active{% else %}Free{% endif %}</p>
-      <p><strong>Role:</strong> {{ profile.role }}</p>
-      <p><a href="{% url 'profile_edit' %}">Edit Profile</a></p>
+      <div class="profile-detail-grid">
+        <div><span class="detail-label">Username</span><p>{{ user_profile.username }}</p></div>
+        <div><span class="detail-label">Email</span><p>{{ user_profile.email }}</p></div>
+        <div><span class="detail-label">Premium status</span><p>{% if profile.is_premium %}Active{% else %}Free{% endif %}</p></div>
+        <div><span class="detail-label">Role</span><p>{{ profile.role }}</p></div>
+      </div>
+      <a href="{% url 'profile_edit' %}" class="btn btn-primary mt-1">Edit Profile</a>
     </div>
 
-    <div class="dashboard-card">
+    <div class="dashboard-card card-modern">
       <h2>Profile Summary</h2>
       {% with profile=user_profile.get_or_create_profile %}
         <p>{{ profile.bio|default:"No bio added yet." }}</p>
-        <p><strong>Location:</strong> {{ profile.location|default:"Not set" }}</p>
-        <p><strong>Website:</strong> {% if profile.website %}<a href="{{ profile.website }}">{{ profile.website }}</a>{% else %}Not set{% endif %}</p>
-        <p><strong>Phone:</strong> {{ profile.phone|default:"Not set" }}</p>
+        <div class="profile-detail-grid">
+          <div><span class="detail-label">Location</span><p>{{ profile.location|default:"Not set" }}</p></div>
+          <div><span class="detail-label">Website</span><p>{% if profile.website %}<a href="{{ profile.website }}" target="_blank">{{ profile.website }}</a>{% else %}Not set{% endif %}</p></div>
+          <div><span class="detail-label">Phone</span><p>{{ profile.phone|default:"Not set" }}</p></div>
+        </div>
       {% endwith %}
-      <p><a href="{% url 'dashboard' %}">Return to dashboard</a></p>
+      <a href="{% url 'dashboard' %}" class="btn btn-secondary mt-1">Return to dashboard</a>
     </div>
   </section>
 {% endblock %}

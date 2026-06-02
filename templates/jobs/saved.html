@@ -3,19 +3,49 @@
 {% block content %}
   <section class="hero-section">
     <div class="hero-copy">
-      <p class="eyebrow">Saved Jobs</p>
-      <h1>Your saved jobs</h1>
-    </div>
-    <div class="plan-card">
-      {% if saved %}
-        <ul>
-          {% for item in saved %}
-            <li><a href="{% url 'job_detail' item.job.pk %}">{{ item.job.title }} — {{ item.job.company.company_name }}</a></li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p>No saved jobs yet.</p>
-      {% endif %}
+      <p class="eyebrow">Saved jobs</p>
+      <h1>Ready for later</h1>
+      <p class="hero-text">All marked positions are stored here so you can revisit them when the timing is right.</p>
     </div>
   </section>
+
+  {% if saved %}
+    <section class="results-pane">
+      <div class="results-header">
+        <div>
+          <h2>Saved roles</h2>
+          <p>{{ saved.count }} saved job{{ saved.count|pluralize }}</p>
+        </div>
+      </div>
+
+      <div class="jobs-grid">
+        {% for item in saved %}
+          <article class="job-card">
+            <div class="job-card-top">
+              <div class="job-title-row">
+                <h3 class="job-title"><a href="{% url 'job_detail' item.job.pk %}">{{ item.job.title }}</a></h3>
+                <p class="job-company">{{ item.job.company.company_name }} · {{ item.job.location }}</p>
+              </div>
+              <span class="badge badge-secondary">Saved</span>
+            </div>
+
+            <p class="job-summary">{{ item.job.summary|default:'A strong opportunity worth revisiting.' }}</p>
+
+            <div class="job-card-footer">
+              <a href="{% url 'job_detail' item.job.pk %}" class="btn-primary">Review role</a>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+  {% else %}
+    <section class="results-pane">
+      <div class="card-modern" style="text-align: center; padding: 3rem 2rem;">
+        <p class="eyebrow">No saved jobs</p>
+        <h2>Keep top roles in one place</h2>
+        <p class="hero-text">Save positions while you browse and decide later with confidence.</p>
+        <a href="{% url 'job_list' %}" class="btn-primary">Browse jobs</a>
+      </div>
+    </section>
+  {% endif %}
 {% endblock %}

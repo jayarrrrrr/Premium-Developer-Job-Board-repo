@@ -4,18 +4,52 @@
   <section class="hero-section">
     <div class="hero-copy">
       <p class="eyebrow">Applications</p>
-      <h1>Your applications</h1>
-    </div>
-    <div class="plan-card">
-      {% if applications %}
-        <ul>
-          {% for app in applications %}
-            <li>{{ app.job.title }} — {{ app.status }} — Applied {{ app.applied_at|date:'F j, Y' }}</li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p>No recent applications.</p>
-      {% endif %}
+      <h1>Your application history</h1>
+      <p class="hero-text">Track the roles you've applied to and see where each opportunity stands.</p>
     </div>
   </section>
+
+  {% if applications %}
+    <section class="results-pane">
+      <div class="results-header">
+        <div>
+          <h2>Recent applications</h2>
+          <p>{{ applications.count }} application{{ applications.count|pluralize }}</p>
+        </div>
+      </div>
+
+      <div class="jobs-grid">
+        {% for app in applications %}
+          <article class="job-card">
+            <div class="job-card-top">
+              <div class="job-title-row">
+                <h3 class="job-title">{{ app.job.title }}</h3>
+                <p class="job-company">{{ app.job.company.company_name }} · {{ app.job.location }}</p>
+              </div>
+              <span class="badge badge-secondary">{{ app.status|capfirst }}</span>
+            </div>
+
+            <p class="job-summary">Applied on {{ app.applied_at|date:'F j, Y' }}. Stay ready for follow-up and keep your profile updated.</p>
+
+            <div class="job-card-footer">
+              <div class="job-feature">
+                <span class="job-feature-label">Job type</span>
+                <span class="job-salary">{{ app.job.employment_type }}</span>
+              </div>
+              <a href="{% url 'job_detail' app.job.pk %}" class="btn-secondary">View job</a>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+  {% else %}
+    <section class="results-pane">
+      <div class="card-modern" style="text-align: center; padding: 3rem 2rem;">
+        <p class="eyebrow">Still fresh</p>
+        <h2>No applications yet</h2>
+        <p class="hero-text">Browse curated developer roles and apply to the ones that match your skill set.</p>
+        <a href="{% url 'job_list' %}" class="btn-primary">Browse jobs</a>
+      </div>
+    </section>
+  {% endif %}
 {% endblock %}
