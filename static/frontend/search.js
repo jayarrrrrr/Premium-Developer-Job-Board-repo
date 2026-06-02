@@ -55,12 +55,20 @@ function getJobTags(job) {
 
 function renderJobs(data) {
   jobList.innerHTML = '';
-  if (!data || data.results.length === 0) {
+  console.debug('Job list API response', data);
+  if (!data || !Array.isArray(data.results)) {
+    jobList.innerHTML = '<p>Unable to load jobs at this time.</p>';
+    paginationControls.innerHTML = '';
+    return;
+  }
+
+  if (data.results.length === 0) {
     jobList.innerHTML = '<p>No jobs match your search.</p>';
     paginationControls.innerHTML = '';
     return;
   }
 
+  console.debug('Jobs returned', data.count, 'results', data.results.length);
   data.results.forEach((job) => {
     const clone = template.content.cloneNode(true);
     clone.querySelector('.job-title').textContent = job.title;

@@ -1,5 +1,6 @@
+from django.urls import reverse
 from rest_framework import serializers
-from .models import JobPosting, Job
+from .models import JobPosting, Job, Application
 
 
 class JobPostingSerializer(serializers.ModelSerializer):
@@ -37,12 +38,13 @@ class JobPostingSerializer(serializers.ModelSerializer):
 
 
 class JobSerializer(serializers.ModelSerializer):
-    """Serializer for the new internal Job model."""
+    """Serializer used by the public job listing endpoint."""
     company = serializers.CharField(source='company.company_name', read_only=True)
     logo = serializers.SerializerMethodField()
     salary_range = serializers.SerializerMethodField()
     summary = serializers.CharField(source='description', read_only=True)
     application_link = serializers.SerializerMethodField()
+    debug_info = serializers.SerializerMethodField()
 
     class Meta:
         model = Job
@@ -58,19 +60,18 @@ class JobSerializer(serializers.ModelSerializer):
             'skills_required',
             'created_at',
             'logo',
+            'debug_info',
         ]
 
     def get_logo(self, obj):
-        """Get company logo URL if available."""
         try:
-            if obj.company and obj.company.logo:
+            if obj.company and getattr(obj.company, 'logo', None):
                 return obj.company.logo.url
         except Exception:
             pass
         return None
 
     def get_salary_range(self, obj):
-        """Show salary to premium users and employers only."""
         request = self.context.get('request')
         if request and getattr(request.user, 'is_authenticated', False):
             profile = request.user.get_or_create_profile()
@@ -79,19 +80,10 @@ class JobSerializer(serializers.ModelSerializer):
         return 'Premium members only. Upgrade to view salary details.'
 
     def get_application_link(self, obj):
-        """Return the apply URL for the job."""
         request = self.context.get('request')
         if request:
-            return request.build_absolute_uri(f'/jobs/job/{obj.id}/apply/')
-        return f'/jobs/job/{obj.id}/apply/'
-
-    def get_application_link(self, obj):
-        request = self.context.get('request')
-        if request and getattr(request.user, 'is_authenticated', False):
-            request.user.get_or_create_profile()
-            if request.user.profile.role == 'EMPLOYER' or request.user.profile.is_premium:
-                return obj.application_link
-        return 'Premium members only. Upgrade to access application details.'
+            return request.build_absolute_uri(reverse('apply_job', args=[obj.id]))
+        return reverse('apply_job', args=[obj.id])
 
     def get_debug_info(self, obj):
         request = self.context.get('request')
@@ -105,18 +97,28 @@ class JobSerializer(serializers.ModelSerializer):
         }
 
 
-# API serializers for Job and Application models
-from .models import Job, Application
-
-
-class JobSerializer(serializers.ModelSerializer):
+class JobAdminSerializer(serializers.ModelSerializer):
+    company = serializers.CharField(source='company.company_name', read_only=True)
     salary = serializers.SerializerMethodField()
     application_url = serializers.SerializerMethodField()
     debug_info = serializers.SerializerMethodField()
 
     class Meta:
         model = Job
-        fields = ['id', 'title', 'company', 'location', 'description', 'salary', 'employment_type', 'skills_required', 'application_url', 'status', 'created_at', 'debug_info']
+        fields = [
+            'id',
+            'title',
+            'company',
+            'location',
+            'description',
+            'salary',
+            'employment_type',
+            'skills_required',
+            'application_url',
+            'status',
+            'created_at',
+            'debug_info',
+        ]
 
     def get_salary(self, obj):
         request = self.context.get('request')
@@ -129,26 +131,16 @@ class JobSerializer(serializers.ModelSerializer):
                     return obj.salary
             except Exception:
                 pass
-            user.get_or_create_profile()
-            if user.profile.role == 'EMPLOYER' or user.profile.is_premium:
+            profile = user.get_or_create_profile()
+            if profile.role == 'EMPLOYER' or profile.is_premium:
                 return obj.salary
         return 'Premium Required'
 
     def get_application_url(self, obj):
         request = self.context.get('request')
-        if request and getattr(request.user, 'is_authenticated', False):
-            user = request.user
-            if getattr(user, 'is_staff', False):
-                return obj.application_url
-            try:
-                if obj.employer_id and user.id == obj.employer_id:
-                    return obj.application_url
-            except Exception:
-                pass
-            user.get_or_create_profile()
-            if user.profile.role == 'EMPLOYER' or user.profile.is_premium:
-                return obj.application_url
-        return 'Premium Required'
+        if request:
+            return request.build_absolute_uri(reverse('apply_job', args=[obj.id]))
+        return reverse('apply_job', args=[obj.id])
 
     def get_debug_info(self, obj):
         request = self.context.get('request')
@@ -164,7 +156,7 @@ class JobSerializer(serializers.ModelSerializer):
 
 class ApplicationSerializer(serializers.ModelSerializer):
     applicant = serializers.StringRelatedField(read_only=True)
-    job = JobSerializer(read_only=True)
+    job = JobAdminSerializer(read_only=True)
 
     class Meta:
         model = Application

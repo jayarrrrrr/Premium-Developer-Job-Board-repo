@@ -40,15 +40,17 @@ class JobPostingViewSet(viewsets.ReadOnlyModelViewSet):
 
 class JobViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for new internal Job model with approved jobs only."""
-    queryset = Job.objects.filter(status=Job.STATUS_APPROVED)
+    queryset = Job.objects.approved()
     serializer_class = JobSerializer
     pagination_class = JobPostingPagination
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        search_term = self.request.query_params.get('search')
-        location = self.request.query_params.get('location')
-        
+        search_term = (self.request.query_params.get('search') or '').strip()
+        location = (self.request.query_params.get('location') or '').strip()
+
+        logger.debug('JobViewSet fetching approved jobs search=%s location=%s', search_term, location)
+
         # Filter by search term if provided
         if search_term:
             queryset = queryset.filter(
@@ -57,15 +59,18 @@ class JobViewSet(viewsets.ReadOnlyModelViewSet):
                 Q(description__icontains=search_term) |
                 Q(skills_required__icontains=search_term)
             )
-        
+
         # Filter by location if provided
         if location:
             queryset = queryset.filter(location__icontains=location)
-        
+
+        logger.debug('JobViewSet returning queryset count=%d', queryset.count())
         return queryset
 
 
 # Django web views for multi-role app
+import logging
+
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from django.views.generic import TemplateView
@@ -75,13 +80,18 @@ from .models import Job, Company, Application, SavedJob, JobApplication
 from .forms import JobForm, CompanyForm, ApplicationForm, JobApplicationForm
 from django.urls import reverse
 
+logger = logging.getLogger(__name__)
+
 
 class JobListView(TemplateView):
     template_name = 'jobs/list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['jobs'] = Job.objects.filter(status=Job.STATUS_APPROVED)
+        approved_jobs = Job.objects.approved()
+        logger.debug('JobListView loaded approved jobs count=%d', approved_jobs.count())
+        context['jobs'] = approved_jobs
+        context['job_count'] = approved_jobs.count()
         return context
 
 

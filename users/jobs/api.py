@@ -2,13 +2,14 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Job, Application, SavedJob
-from .serializers import JobSerializer, ApplicationSerializer
+from .serializers import JobAdminSerializer, ApplicationSerializer
 from users.permissions import IsDeveloper, IsEmployer, IsPremiumUser
+
 
 
 class JobViewSet(viewsets.ModelViewSet):
     queryset = Job.objects.all()
-    serializer_class = JobSerializer
+    serializer_class = JobAdminSerializer
 
     def get_permissions(self):
         if self.action in ('create', 'update', 'partial_update', 'destroy'):

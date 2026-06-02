@@ -10,6 +10,19 @@ except Exception:
     _CLOUDINARY_AVAILABLE = False
 
 
+class JobQuerySet(models.QuerySet):
+    def approved(self):
+        return self.filter(status=self.model.STATUS_APPROVED)
+
+
+class JobManager(models.Manager):
+    def get_queryset(self):
+        return JobQuerySet(self.model, using=self._db)
+
+    def approved(self):
+        return self.get_queryset().approved()
+
+
 class JobPosting(models.Model):
     title = models.CharField(max_length=200)
     company = models.CharField(max_length=150)
@@ -78,6 +91,8 @@ class Job(models.Model):
     skills_required = models.CharField(max_length=300, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    objects = JobManager()
 
     class Meta:
         ordering = ['-created_at']

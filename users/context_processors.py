@@ -18,7 +18,7 @@ def job_stats(request):
     """Calculate and provide job marketplace statistics to templates."""
     try:
         # Active Jobs: Count of approved job postings
-        active_jobs = Job.objects.filter(status=Job.STATUS_APPROVED).count()
+        active_jobs = Job.objects.approved().count()
         
         # Companies Hiring: Count of unique companies with at least one approved job
         companies_hiring = Company.objects.filter(

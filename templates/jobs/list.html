@@ -80,5 +80,13 @@
     </article>
   </template>
 
+  <script>
+    console.debug('Job list template context', {
+      active_jobs: {{ active_jobs|default:0 }},
+      companies_hiring: {{ companies_hiring|default:0 }},
+      developers_hired: {{ developers_hired|default:0 }},
+      job_count: {{ job_count|default:0 }},
+    });
+  </script>
   <script src="/static/frontend/search.js"></script>
 {% endblock %}
