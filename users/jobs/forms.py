@@ -34,7 +34,17 @@ class CompanyForm(forms.ModelForm):
 
 class JobForm(forms.ModelForm):
     # Allow employers to either pick one of their existing companies or type a new company name.
-    company_name = forms.CharField(required=False, label='New Company Name')
+    company = forms.ModelChoiceField(
+        queryset=Company.objects.none(),
+        required=False,
+        label='Existing Company',
+        empty_label='-- Select a company or create a new one --'
+    )
+    company_name = forms.CharField(
+        required=False,
+        label='New Company Name',
+        widget=forms.TextInput(attrs={'placeholder': 'Enter company name if not listed above'})
+    )
 
     class Meta:
         model = Job
@@ -45,22 +55,22 @@ class JobForm(forms.ModelForm):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         if user is not None:
-            qs = Company.objects.filter(employer=user)
-            if qs.exists():
-                self.fields['company'].queryset = qs
-            else:
-                # If the employer has no companies, remove the company select
-                # so the user can only enter a new company name.
-                self.fields.pop('company', None)
+            # Set the queryset to only the employer's companies
+            self.fields['company'].queryset = Company.objects.filter(employer=user)
+        else:
+            # If no user provided, just allow empty queryset
+            self.fields['company'].queryset = Company.objects.none()
 
     def clean(self):
         cleaned = super().clean()
         company = cleaned.get('company')
-        company_name = cleaned.get('company_name')
+        company_name = cleaned.get('company_name', '').strip()
 
-        # If no existing company selected, require a new company name
+        # Require either an existing company OR a new company name
         if not company and not company_name:
-            raise ValidationError('Please select an existing company or enter a new company name.')
+            raise ValidationError(
+                'Please either select an existing company from the dropdown or enter a new company name.'
+            )
 
         return cleaned
 
