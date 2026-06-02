@@ -228,6 +228,12 @@
   gap: 3rem;
 }
 
+.marketplace-grid-full {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
 /* ===== MARKETPLACE SIDEBAR ===== */
 .marketplace-sidebar {
   display: flex;
@@ -474,6 +480,12 @@
 .marketplace-main {
   display: grid;
   gap: 2.5rem;
+}
+
+.marketplace-main-full {
+  display: grid;
+  gap: 2.5rem;
+  max-width: 100%;
 }
 
 .listings-header {

@@ -57,13 +57,13 @@ function renderJobs(data) {
   jobList.innerHTML = '';
   console.debug('Job list API response', data);
   if (!data || !Array.isArray(data.results)) {
-    jobList.innerHTML = '<p>Unable to load jobs at this time.</p>';
+    jobList.innerHTML = '<div class="card-modern" style="text-align: center; padding: 3rem 2rem;"><p class="eyebrow">No results</p><h2>Unable to load jobs at this time.</h2></div>';
     paginationControls.innerHTML = '';
     return;
   }
 
   if (data.results.length === 0) {
-    jobList.innerHTML = '<p>No jobs match your search.</p>';
+    jobList.innerHTML = '<div class="card-modern" style="text-align: center; padding: 3rem 2rem;"><p class="eyebrow">No results</p><h2>No jobs match your search.</h2><p class="hero-text">Try adjusting your search terms or filters.</p></div>';
     paginationControls.innerHTML = '';
     return;
   }
@@ -71,58 +71,65 @@ function renderJobs(data) {
   console.debug('Jobs returned', data.count, 'results', data.results.length);
   data.results.forEach((job) => {
     const clone = template.content.cloneNode(true);
+    
+    // Update job title and company info
     clone.querySelector('.job-title').textContent = job.title;
-    clone.querySelector('.job-company').textContent = job.company;
-    clone.querySelector('.job-location').textContent = job.location;
-    clone.querySelector('.job-summary').textContent = job.summary;
-    const logoImage = clone.querySelector('.logo-image');
-    const logoInitials = clone.querySelector('.logo-initials');
+    clone.querySelector('.company-name').textContent = job.company;
+    
+    // Update company logo
+    const logoImage = clone.querySelector('.company-logo');
+    const logoInitial = clone.querySelector('.company-initial');
     if (job.logo) {
       logoImage.src = job.logo;
-      logoImage.classList.add('visible');
-      logoInitials.textContent = '';
+      logoImage.style.display = 'block';
+      logoInitial.style.display = 'none';
     } else {
-      logoImage.classList.remove('visible');
-      logoInitials.textContent = getCompanyInitials(job.company);
+      logoImage.style.display = 'none';
+      logoInitial.style.display = 'block';
+      logoInitial.textContent = getCompanyInitials(job.company);
+    }
+    
+    // Update job location
+    const locationBadge = clone.querySelector('.location-badge');
+    if (locationBadge) {
+      locationBadge.textContent = job.location || 'Remote';
     }
 
-    const tagsContainer = clone.querySelector('.job-tags');
-    tagsContainer.innerHTML = '';
+    // Update job summary
+    clone.querySelector('.job-summary').textContent = job.summary || 'Exciting opportunity to join a growing team.';
+    
+    // Update employment badges
+    const badgeType = clone.querySelector('.badge-type');
+    const badgeRemote = clone.querySelector('.badge-remote');
+    badgeType.textContent = job.employment_type || 'Full-Time';
+    badgeRemote.textContent = job.location?.toLowerCase().includes('remote') ? 'Remote' : 'On-site';
+    
+    // Update skill chips
+    const skillsContainer = clone.querySelector('.skills-chips');
+    skillsContainer.innerHTML = '';
     getJobTags(job).forEach((tag) => {
-      const badge = document.createElement('span');
-      badge.className = 'job-tag';
-      badge.textContent = tag;
-      tagsContainer.appendChild(badge);
+      const chip = document.createElement('span');
+      chip.className = 'skill-chip';
+      chip.textContent = tag;
+      skillsContainer.appendChild(chip);
     });
 
-    const salaryText = job.salary_range || 'Premium members only. Upgrade to view salary details.';
+    // Update salary display
+    const salaryText = job.salary_range || '$Competitive';
     const salaryElement = clone.querySelector('.job-salary');
     salaryElement.textContent = salaryText;
-    if (salaryText.toLowerCase().includes('premium')) {
-      salaryElement.classList.add('job-locked');
-    }
 
-    const applicationContainer = clone.querySelector('.job-application');
-    applicationContainer.innerHTML = '';
+    // Update apply button
+    const applyBtn = clone.querySelector('.btn-card-apply');
     if (job.application_link && job.application_link.startsWith('http')) {
-      const applyButton = document.createElement('a');
-      applyButton.href = job.application_link;
-      applyButton.target = '_blank';
-      applyButton.rel = 'noopener noreferrer';
-      applyButton.className = 'apply-button';
-      applyButton.textContent = 'Apply now';
-      applicationContainer.appendChild(applyButton);
+      applyBtn.href = job.application_link;
+      applyBtn.textContent = 'Apply now';
+      applyBtn.target = '_blank';
+      applyBtn.rel = 'noopener noreferrer';
     } else {
-      const lockedMessage = document.createElement('span');
-      lockedMessage.className = 'job-locked';
-      lockedMessage.textContent = job.application_link || 'Premium members only. Upgrade to access application details.';
-      applicationContainer.appendChild(lockedMessage);
-
-      const upgradeLink = document.createElement('a');
-      upgradeLink.href = '/upgrade/';
-      upgradeLink.className = 'apply-button apply-upgrade';
-      upgradeLink.textContent = 'Upgrade Now';
-      applicationContainer.appendChild(upgradeLink);
+      applyBtn.href = '/upgrade/';
+      applyBtn.textContent = 'Premium to apply';
+      applyBtn.style.opacity = '0.6';
     }
 
     jobList.appendChild(clone);
