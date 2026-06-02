@@ -43,7 +43,13 @@ class JobForm(forms.ModelForm):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         if user is not None:
-            self.fields['company'].queryset = Company.objects.filter(employer=user)
+            qs = Company.objects.filter(employer=user)
+            if qs.exists():
+                self.fields['company'].queryset = qs
+            else:
+                # If the employer has no companies, remove the company select
+                # so the user can only enter a new company name.
+                self.fields.pop('company', None)
 
     def clean(self):
         cleaned = super().clean()
