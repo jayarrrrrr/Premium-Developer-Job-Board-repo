@@ -3,50 +3,58 @@
 
 {% block content %}
   <section class="dashboard-hero">
-    <div class="hero-copy">
-      <p class="eyebrow">Job Seeker Dashboard</p>
-      <div class="dashboard-hero-grid">
-        {% with profile=user_profile.get_or_create_profile %}
-          {% if profile.profile_picture %}
-            <img src="{{ profile.profile_picture.url }}" alt="Profile" class="profile-avatar-large">
-          {% else %}
-            <img src="{% static 'images/default-developer.svg' %}" alt="Avatar" class="profile-avatar-large">
-          {% endif %}
-        {% endwith %}
-        <div>
-          <h1>Welcome back, {{ user_profile.username }}</h1>
-          {% if is_premium %}
-            <p class="hero-text">You have premium access through {{ user_profile.premium_expires_at|date:'F j, Y' }}.</p>
-          {% else %}
-            <p class="hero-text">Upgrade to premium to see salary ranges, direct apply links, and priority listings.</p>
-          {% endif %}
+    <div class="container-wide">
+      <div class="hero-copy">
+        <p class="eyebrow">Job Seeker Dashboard</p>
+        <div class="dashboard-hero-grid">
+          {% with profile=user_profile.get_or_create_profile %}
+            {% if profile.profile_picture %}
+              <img src="{{ profile.profile_picture.url }}" alt="Profile" class="profile-avatar-large">
+            {% else %}
+              <img src="{% static 'images/default-developer.svg' %}" alt="Avatar" class="profile-avatar-large">
+            {% endif %}
+          {% endwith %}
+          <div>
+            <h1>Welcome back, {{ user_profile.username }}</h1>
+            {% if is_premium %}
+              <p class="hero-text">You have premium access through {{ user_profile.premium_expires_at|date:'F j, Y' }}.</p>
+            {% else %}
+              <p class="hero-text">Upgrade to premium to see salary ranges, direct apply links, and priority listings.</p>
+            {% endif %}
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="dashboard-grid">
-    <div class="dashboard-card card-modern">
-      <h2>Account status</h2>
-      <p>Username: <strong>{{ user_profile.username }}</strong></p>
-      <p>Email: <strong>{{ user_profile.email }}</strong></p>
-      <p>Status: <strong>{% if is_premium %}Premium Member{% else %}Free User{% endif %}</strong></p>
-      {% if is_premium %}
-        <p>Activated: <strong>{{ user_profile.premium_activated_at|date:'F j, Y' }}</strong></p>
-        <p>Expires: <strong>{{ user_profile.premium_expires_at|date:'F j, Y' }}</strong></p>
-      {% else %}
-        <p class="premium-note">Upgrade now to unlock premium salary and application details.</p>
-        <a href="{% url 'upgrade' %}" class="btn btn-primary">Upgrade to Premium</a>
-      {% endif %}
-    </div>
-    <div class="dashboard-card card-modern">
-      <h2>Premium benefits</h2>
-      <ul class="plan-benefits">
-        <li>✓ View salary ranges</li>
-        <li>✓ Access direct application links</li>
-        <li>✓ Advanced job filters</li>
-        <li>✓ Priority job listings</li>
-      </ul>
-    </div>
-  </section>
+  <div class="container-wide">
+    <section class="dashboard-grid">
+      <div class="dashboard-card">
+        <h2>Account Status</h2>
+        <div>
+          <p><strong>Username:</strong> {{ user_profile.username }}</p>
+          <p><strong>Email:</strong> {{ user_profile.email }}</p>
+          <p><strong>Status:</strong> {% if is_premium %}<span class="badge badge-premium">Premium Member</span>{% else %}<span class="badge">Free User</span>{% endif %}</p>
+        </div>
+        {% if is_premium %}
+          <div>
+            <p><strong>Activated:</strong> {{ user_profile.premium_activated_at|date:'F j, Y' }}</p>
+            <p><strong>Expires:</strong> {{ user_profile.premium_expires_at|date:'F j, Y' }}</p>
+          </div>
+        {% else %}
+          <p class="premium-note">Upgrade now to unlock premium salary and application details.</p>
+          <a href="{% url 'upgrade' %}" class="btn btn-primary">Upgrade to Premium</a>
+        {% endif %}
+      </div>
+      <div class="dashboard-card">
+        <h2>Premium Benefits</h2>
+        <ul class="plan-benefits">
+          <li>View salary ranges</li>
+          <li>Access direct application links</li>
+          <li>Advanced job filters</li>
+          <li>Priority job listings</li>
+        </ul>
+      </div>
+    </section>
+  </div>
 {% endblock %}

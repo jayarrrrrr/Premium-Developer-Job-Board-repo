@@ -550,14 +550,16 @@ select {
 }
 
 .btn-secondary,
-.outline-button {
+.outline-button,
+.btn-outline {
   background: var(--surface);
   color: var(--text);
   border: 2px solid var(--border);
 }
 
 .btn-secondary:hover,
-.outline-button:hover {
+.outline-button:hover,
+.btn-outline:hover {
   background: var(--surface-dark);
   border-color: var(--primary);
   color: var(--primary);
@@ -574,6 +576,22 @@ select {
 .btn-danger:hover {
   box-shadow: 0 12px 36px rgba(239, 68, 68, 0.3);
   transform: translateY(-2px);
+}
+
+.text-button {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+  transition: all var(--transition);
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.text-button:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+  background: rgba(37, 99, 235, 0.05);
 }
 
 .badge {
