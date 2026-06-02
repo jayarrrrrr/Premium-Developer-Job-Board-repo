@@ -1,2 +1,2 @@
-web: gunicorn jobboard_project.wsgi
+web: gunicorn jobboard_project.wsgi:application
 release: python manage.py migrate
