@@ -170,6 +170,13 @@ select {
   margin-left: auto;
 }
 
+.nav-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
 .nav-link {
   display: inline-flex;
   align-items: center;

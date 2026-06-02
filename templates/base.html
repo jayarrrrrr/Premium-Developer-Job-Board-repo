@@ -23,8 +23,10 @@
         <div class="brand-mark">DevJobs</div>
         <div>
           <h1 class="site-logo">Premium Developer Job Board</h1>
+        </div>
       </div>
       <nav class="header-nav">
+        <div class="nav-right">
         {% if request.user.is_authenticated %}
           {# Notification bell #}
           <button class="icon-btn notification-btn" aria-label="Notifications">
@@ -32,13 +34,13 @@
             <span class="notif-count" aria-hidden="true">0</span>
           </button>
 
-          {% if effective_is_premium %}
-            <span class="premium-badge">⭐ Premium Member</span>
-          {% endif %}
-
           {# Primary CTA for employers: keep Post Job visible #}
           {% if request.user.profile_role == 'EMPLOYER' %}
             <a href="{% url 'job_create' %}" class="nav-link primary post-job-cta">Post Job</a>
+          {% endif %}
+
+          {% if effective_is_premium %}
+            <span class="premium-badge">⭐ Premium Member</span>
           {% endif %}
 
           {# Profile toggle + dropdown #}
@@ -86,6 +88,7 @@
           <a href="{% url 'login' %}" class="nav-link">Login</a>
           <a href="/signup/" class="nav-link primary">Sign Up</a>
         {% endif %}
+        </div>
       </nav>
     </div>
   </header>
