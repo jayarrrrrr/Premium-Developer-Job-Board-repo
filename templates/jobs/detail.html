@@ -20,23 +20,44 @@
         <a href="{% url 'upgrade' %}" class="upgrade-btn">Upgrade to Premium</a>
       {% endif %}
 
-      <h3>Apply</h3>
-      {% if can_apply_link %}
-        <a href="{{ job.application_url }}" target="_blank" class="apply-button">Apply on company site</a>
-      {% else %}
-        <p class="job-locked">🔒 Premium Feature — Upgrade to access direct application links</p>
-        <a href="{% url 'upgrade' %}" class="upgrade-btn">Upgrade to Premium</a>
-      {% endif %}
-
+      <h3>Apply Now</h3>
       {% if user.is_authenticated %}
-        <form method="post" action="" class="signup-form">
-          {% csrf_token %}
-          {{ application_form.as_p }}
-          <button type="submit" class="upgrade-btn">Submit Application</button>
-        </form>
+        {% if can_apply %}
+          {% if already_applied %}
+            <p class="job-locked">✓ You have already applied for this job</p>
+          {% else %}
+            <a href="{% url 'apply_job' job.pk %}" class="apply-button">Apply Now</a>
+          {% endif %}
+        {% else %}
+          <p class="job-locked">🔒 Premium Feature — Upgrade to Premium to Apply</p>
+          <a href="{% url 'upgrade' %}" class="upgrade-btn">Upgrade to Premium</a>
+        {% endif %}
       {% else %}
-        <p><a href="{% url 'login' %}">Log in</a> to apply.</p>
+        <p><a href="{% url 'login' %}">Log in</a> to apply for this job.</p>
       {% endif %}
     </div>
   </section>
+
+  <style>
+    .apply-button {
+      display: inline-block;
+      background-color: #4caf50;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .apply-button:hover {
+      background-color: #45a049;
+    }
+
+    .job-locked {
+      color: #ff9800;
+      font-weight: 500;
+    }
+  </style>
 {% endblock %}

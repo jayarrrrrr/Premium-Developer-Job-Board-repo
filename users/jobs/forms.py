@@ -1,9 +1,11 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import Job, Company, Application
+from .models import Job, Company, Application, JobApplication
 
 ALLOWED_IMAGE_TYPES = ('image/jpeg', 'image/png', 'image/webp')
+ALLOWED_RESUME_TYPES = ('application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
 MAX_IMAGE_SIZE = 5 * 1024 * 1024  # 5MB
+MAX_RESUME_SIZE = 10 * 1024 * 1024  # 10MB
 
 
 class CompanyForm(forms.ModelForm):
@@ -32,11 +34,11 @@ class CompanyForm(forms.ModelForm):
 
 class JobForm(forms.ModelForm):
     # Allow employers to either pick one of their existing companies or type a new company name.
-    company_name = forms.CharField(required=False, label='company name')
+    company_name = forms.CharField(required=False, label='Company name')
 
     class Meta:
         model = Job
-        fields = ['company', 'company_name', 'title', 'description', 'location', 'salary', 'employment_type', 'skills_required', 'application_url']
+        fields = ['company', 'company_name', 'title', 'description', 'location', 'salary', 'employment_type', 'skills_required']
 
     def __init__(self, *args, **kwargs):
         # Accept an optional `user` kwarg to scope available companies to that employer
@@ -61,6 +63,36 @@ class JobForm(forms.ModelForm):
             raise ValidationError('Please select an existing company or enter a new company name.')
 
         return cleaned
+
+
+class JobApplicationForm(forms.ModelForm):
+    """Form for applicants to apply to jobs."""
+    class Meta:
+        model = JobApplication
+        fields = ['full_name', 'email', 'phone_number', 'resume', 'cover_letter', 'portfolio_url']
+        widgets = {
+            'full_name': forms.TextInput(attrs={'placeholder': 'Your full name'}),
+            'email': forms.EmailInput(attrs={'placeholder': 'your.email@example.com'}),
+            'phone_number': forms.TextInput(attrs={'placeholder': '+1 (555) 123-4567'}),
+            'cover_letter': forms.Textarea(attrs={'rows': 6, 'placeholder': 'Tell us why you are interested in this role...'}),
+            'portfolio_url': forms.URLInput(attrs={'placeholder': 'https://myportfolio.com (optional)'}),
+        }
+
+    def clean_resume(self):
+        resume = self.cleaned_data.get('resume')
+        if not resume:
+            raise ValidationError('Resume file is required.')
+
+        # Validate file size
+        if resume.size > MAX_RESUME_SIZE:
+            raise ValidationError('Resume file too large (max 10MB).')
+
+        # Validate file type
+        content_type = getattr(resume, 'content_type', None)
+        if content_type and content_type not in ALLOWED_RESUME_TYPES:
+            raise ValidationError('Unsupported resume format. Allowed: PDF, DOC, DOCX.')
+
+        return resume
 
 
 class ApplicationForm(forms.ModelForm):

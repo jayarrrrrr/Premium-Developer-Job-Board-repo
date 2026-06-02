@@ -76,7 +76,6 @@ class Job(models.Model):
     salary = models.CharField(max_length=120)
     employment_type = models.CharField(max_length=30, choices=EMPLOYMENT_CHOICES, default=EMPLOYMENT_FULL_TIME)
     skills_required = models.CharField(max_length=300, blank=True)
-    application_url = models.URLField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -125,3 +124,29 @@ class SavedJob(models.Model):
 
     def __str__(self):
         return f"{self.user.username} saved {self.job.title}"
+
+
+class JobApplication(models.Model):
+    """Internal application system for jobs with resume upload support."""
+    job = models.ForeignKey(Job, related_name='job_applications', on_delete=models.CASCADE)
+    applicant = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='job_applications', on_delete=models.CASCADE)
+    full_name = models.CharField(max_length=200)
+    email = models.EmailField()
+    phone_number = models.CharField(max_length=20)
+    resume = None  # Will be defined below with Cloudinary or FileField support
+    cover_letter = models.TextField(blank=True)
+    portfolio_url = models.URLField(blank=True, null=True)
+    applied_at = models.DateTimeField(auto_now_add=True)
+
+    # Resume field with Cloudinary support
+    if _CLOUDINARY_AVAILABLE:
+        resume = models.FileField(upload_to='job_resumes/', blank=False)
+    else:
+        resume = models.FileField(upload_to='job_resumes/', blank=False)
+
+    class Meta:
+        unique_together = ('job', 'applicant')
+        ordering = ['-applied_at']
+
+    def __str__(self):
+        return f"Application by {self.applicant.username} to {self.job.title}"

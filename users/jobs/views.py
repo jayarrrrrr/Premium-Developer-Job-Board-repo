@@ -40,8 +40,9 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from .models import Job, Company, Application, SavedJob
-from .forms import JobForm, CompanyForm, ApplicationForm
+from django.contrib import messages
+from .models import Job, Company, Application, SavedJob, JobApplication
+from .forms import JobForm, CompanyForm, ApplicationForm, JobApplicationForm
 from django.urls import reverse
 
 
@@ -58,13 +59,18 @@ class JobDetailView(View):
     def get(self, request, pk, *args, **kwargs):
         job = get_object_or_404(Job, pk=pk, status__in=[Job.STATUS_APPROVED, Job.STATUS_PENDING])
         can_view_salary = False
+        can_apply = False
+        already_applied = False
+        
         if request.user.is_authenticated:
             user = request.user
             profile = user.get_or_create_profile()
             if getattr(user, 'is_staff', False):
                 can_view_salary = True
+                can_apply = False  # Staff don't apply
             elif profile.role == 'EMPLOYER':
                 can_view_salary = True
+                can_apply = False  # Employers don't apply
             else:
                 try:
                     if job.employer_id and user.id == job.employer_id:
@@ -73,27 +79,16 @@ class JobDetailView(View):
                     pass
                 if profile.is_premium:
                     can_view_salary = True
-        can_apply_link = can_view_salary
+                    can_apply = True
+                    # Check if user already applied
+                    already_applied = JobApplication.objects.filter(job=job, applicant=user).exists()
+        
         return render(request, 'jobs/detail.html', {
             'job': job,
             'can_view_salary': can_view_salary,
-            'can_apply_link': can_apply_link,
-            'application_form': ApplicationForm(),
+            'can_apply': can_apply,
+            'already_applied': already_applied,
         })
-
-    def post(self, request, pk, *args, **kwargs):
-        # submit application
-        if not request.user.is_authenticated:
-            return redirect('login')
-        job = get_object_or_404(Job, pk=pk, status=Job.STATUS_APPROVED)
-        form = ApplicationForm(request.POST)
-        if form.is_valid():
-            application = form.save(commit=False)
-            application.applicant = request.user
-            application.job = job
-            application.save()
-            return redirect('application_history')
-        return render(request, 'jobs/detail.html', {'job': job, 'application_form': form})
 
 
 class EmployerRequiredMixin(UserPassesTestMixin):
@@ -161,15 +156,61 @@ class JobDeleteView(LoginRequiredMixin, View):
 
 
 class ApplyJobView(LoginRequiredMixin, View):
+    """New view for applying to jobs with JobApplication model."""
+    
+    def get(self, request, pk, *args, **kwargs):
+        job = get_object_or_404(Job, pk=pk, status=Job.STATUS_APPROVED)
+        
+        # Check if user can apply (must be premium)
+        profile = request.user.get_or_create_profile()
+        if profile.role == 'EMPLOYER' or not profile.is_premium:
+            messages.error(request, 'You must be a Premium member to apply for jobs.')
+            return redirect('job_detail', pk=pk)
+        
+        # Check if already applied
+        if JobApplication.objects.filter(job=job, applicant=request.user).exists():
+            messages.info(request, 'You have already applied for this job.')
+            return redirect('job_detail', pk=pk)
+        
+        # Pre-fill form with user data
+        initial_data = {
+            'full_name': request.user.get_full_name() or request.user.username,
+            'email': request.user.email,
+        }
+        form = JobApplicationForm(initial=initial_data)
+        
+        return render(request, 'jobs/apply.html', {
+            'form': form,
+            'job': job,
+        })
+    
     def post(self, request, pk, *args, **kwargs):
         job = get_object_or_404(Job, pk=pk, status=Job.STATUS_APPROVED)
-        form = ApplicationForm(request.POST)
+        
+        # Check if user can apply
+        profile = request.user.get_or_create_profile()
+        if profile.role == 'EMPLOYER' or not profile.is_premium:
+            messages.error(request, 'You must be a Premium member to apply for jobs.')
+            return redirect('job_detail', pk=pk)
+        
+        # Prevent duplicate applications
+        if JobApplication.objects.filter(job=job, applicant=request.user).exists():
+            messages.error(request, 'You have already applied for this job.')
+            return redirect('job_detail', pk=pk)
+        
+        form = JobApplicationForm(request.POST, request.FILES)
         if form.is_valid():
             application = form.save(commit=False)
-            application.applicant = request.user
             application.job = job
+            application.applicant = request.user
             application.save()
-        return redirect('application_history')
+            messages.success(request, 'Your application has been submitted successfully!')
+            return redirect('job_detail', pk=pk)
+        
+        return render(request, 'jobs/apply.html', {
+            'form': form,
+            'job': job,
+        })
 
 
 class SaveJobView(LoginRequiredMixin, View):
@@ -202,10 +243,18 @@ class JobApplicantsView(LoginRequiredMixin, TemplateView):
 
     def get(self, request, pk, *args, **kwargs):
         job = get_object_or_404(Job, pk=pk)
+        
+        # Only employer or staff can view applicants
         if job.employer != request.user and not request.user.is_staff:
+            messages.error(request, 'You do not have permission to view applicants for this job.')
             return redirect('job_list')
-        applicants = job.applications.all()
-        return render(request, self.template_name, {'job': job, 'applicants': applicants})
+        
+        applicants = job.job_applications.all().order_by('-applied_at')
+        
+        return render(request, self.template_name, {
+            'job': job,
+            'applicants': applicants,
+        })
 
 
 class EmployerDashboardView(LoginRequiredMixin, EmployerRequiredMixin, TemplateView):
@@ -214,10 +263,14 @@ class EmployerDashboardView(LoginRequiredMixin, EmployerRequiredMixin, TemplateV
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         jobs = self.request.user.jobs.all()
-        total_applicants = Application.objects.filter(job__in=jobs).count()
-        recent_applications = Application.objects.filter(job__in=jobs).order_by('-applied_at')[:5]
+        
+        # Count job applications (new system)
+        total_applicants = JobApplication.objects.filter(job__in=jobs).count()
+        recent_applications = JobApplication.objects.filter(job__in=jobs).order_by('-applied_at')[:5]
+        
         company_profile = self.request.user.companies.first()
         active_jobs = jobs.filter(status=Job.STATUS_APPROVED)
+        
         context.update({
             'jobs': jobs,
             'active_jobs': active_jobs,
