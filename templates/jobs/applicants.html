@@ -26,6 +26,7 @@
                 <h3>{{ application.full_name }}</h3>
                 <p class="job-company">Applied {{ application.applied_at|date:"M d, Y" }}</p>
               </div>
+              {# Display computed status (Application record) when available #}
               <span class="badge badge-secondary">{{ application.status|default:'Submitted'|capfirst }}</span>
             </div>
 
@@ -48,6 +49,16 @@
               {% if application.resume %}
                 <a href="{{ application.resume.url }}" class="btn-primary" download>Download resume</a>
               {% endif %}
+
+              {# Accept applicant form - only shown to employer/staff viewing page #}
+              <form method="post" action="{% url 'accept_application' application.id %}" style="display:inline-block;">
+                {% csrf_token %}
+                {% if application.status != 'ACCEPTED' %}
+                  <button type="submit" class="btn btn-primary">Accept</button>
+                {% else %}
+                  <button type="button" class="btn" disabled>Accepted</button>
+                {% endif %}
+              </form>
             </div>
           </article>
         {% endfor %}

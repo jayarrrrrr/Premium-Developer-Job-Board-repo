@@ -290,11 +290,58 @@ class JobApplicantsView(LoginRequiredMixin, TemplateView):
             return redirect('job_list')
         
         applicants = job.job_applications.all().order_by('-applied_at')
-        
+
+        # Map job_application id -> existing Application.status (if previously created)
+        application_statuses = {}
+        for app in applicants:
+            existing = Application.objects.filter(job=job, applicant=app.applicant).first()
+            if existing:
+                application_statuses[app.id] = existing.status
+                # attach status to the JobApplication instance for template access
+                setattr(app, 'status', existing.status)
+            else:
+                application_statuses[app.id] = Application.STATUS_SUBMITTED
+                setattr(app, 'status', Application.STATUS_SUBMITTED)
+
         return render(request, self.template_name, {
             'job': job,
             'applicants': applicants,
+            'application_statuses': application_statuses,
         })
+
+
+class AcceptApplicationView(LoginRequiredMixin, View):
+    """Allows an employer to accept a JobApplication. This will create or update
+    a corresponding Application record with STATUS_ACCEPTED and redirect back
+    to the applicants page for the job.
+    """
+
+    def post(self, request, pk, *args, **kwargs):
+        job_app = get_object_or_404(JobApplication, pk=pk)
+        job = job_app.job
+
+        # Only the employer who owns the job (or staff) can accept
+        if job.employer != request.user and not request.user.is_staff:
+            messages.error(request, 'You do not have permission to accept this applicant.')
+            return redirect('job_applicants', pk=job.pk)
+
+        # Create or update the Application record
+        application_obj, created = Application.objects.get_or_create(
+            job=job,
+            applicant=job_app.applicant,
+            defaults={
+                'resume': job_app.resume.name if getattr(job_app, 'resume', None) else '',
+                'cover_letter': job_app.cover_letter or '',
+                'status': Application.STATUS_ACCEPTED,
+            }
+        )
+
+        if not created:
+            application_obj.status = Application.STATUS_ACCEPTED
+            application_obj.save()
+
+        messages.success(request, f"Accepted {job_app.full_name}'s application.")
+        return redirect('job_applicants', pk=job.pk)
 
 
 class EmployerDashboardView(LoginRequiredMixin, EmployerRequiredMixin, TemplateView):

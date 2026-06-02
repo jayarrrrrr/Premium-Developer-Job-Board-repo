@@ -651,12 +651,28 @@
   color: var(--muted);
   cursor: pointer;
   padding: 0.5rem;
-  transition: color var(--transition);
+  transition: all var(--transition-slow);
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
 }
 
 .card-save-btn:hover {
   color: var(--primary);
+  background: rgba(37, 99, 235, 0.1);
+  transform: scale(1.1);
+}
+
+.card-save-btn.saved {
+  color: var(--primary);
+  background: rgba(37, 99, 235, 0.12);
+}
+
+.card-save-btn.saved:hover {
+  color: var(--primary-dark);
+  background: rgba(37, 99, 235, 0.2);
 }
 
 /* Card Summary */

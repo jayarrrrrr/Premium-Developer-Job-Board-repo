@@ -132,10 +132,59 @@ function renderJobs(data) {
       applyBtn.style.opacity = '0.6';
     }
 
+    // Add save button functionality
+    const saveBtn = clone.querySelector('.card-save-btn');
+    saveBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      try {
+        const response = await fetch(`/api/jobs/job/${job.id}/save/`, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'X-CSRFToken': getCookie('csrftoken') },
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          // Toggle saved state in UI
+          saveBtn.classList.toggle('saved', result.saved);
+          const svg = saveBtn.querySelector('svg path');
+          if (result.saved) {
+            svg.style.fill = 'currentColor';
+            saveBtn.setAttribute('data-saved', 'true');
+          } else {
+            svg.style.fill = 'none';
+            saveBtn.removeAttribute('data-saved');
+          }
+        } else if (response.status === 401) {
+          window.location.href = '/login/';
+        }
+      } catch (error) {
+        console.error('Error saving job:', error);
+      }
+    });
+
     jobList.appendChild(clone);
   });
 
   renderPagination(data);
+}
+
+// Utility function to get CSRF token from cookies
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
 }
 
 function renderPagination(data) {
