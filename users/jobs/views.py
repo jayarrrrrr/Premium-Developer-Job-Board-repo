@@ -115,8 +115,8 @@ class JobCreateView(LoginRequiredMixin, EmployerRequiredMixin, View):
                 job.company = company
 
             job.employer = request.user
-            # default to pending for admin approval
-            job.status = Job.STATUS_PENDING
+            # Auto-approve jobs when created (can be changed to PENDING for admin review)
+            job.status = Job.STATUS_APPROVED
             job.save()
             return redirect('employer_dashboard')
         return render(request, 'jobs/form.html', {'form': form, 'creating': True})
