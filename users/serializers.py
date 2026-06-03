@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import User, Profile
+from .services import EmailService
 
 
 class SignupSerializer(serializers.ModelSerializer):
@@ -35,6 +36,13 @@ class SignupSerializer(serializers.ModelSerializer):
         else:
             profile.role = 'JOB_SEEKER'
         profile.save()
+        
+        # Send welcome email
+        try:
+            EmailService.send_welcome_email(user)
+        except Exception as e:
+            print(f"Welcome email not sent: {str(e)}")
+        
         return user
 
 
