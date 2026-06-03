@@ -165,10 +165,9 @@ SECURE_HSTS_PRELOAD = False
 SECURE_HSTS_INCLUDE_SUBDOMAINS = False
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-# Production security settings (Railway handles HTTPS at edge, so don't force redirect)
+# Production security settings
 if not DEBUG:
-    # Railway already handles HTTPS, so SSL redirect can cause loops
-    SECURE_SSL_REDIRECT = False
+    SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 31536000
