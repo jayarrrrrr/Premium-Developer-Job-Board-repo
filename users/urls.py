@@ -1,9 +1,6 @@
 from django.urls import path
-from .views import (
-    DashboardView, DeveloperDashboardView, ProfileView, UpgradeView, 
-    PaymentView, PaymentConfirmationView, ProfileEditView,
-    ForgotPasswordView, ResetPasswordView
-)
+from .views import DashboardView, DeveloperDashboardView, ProfileView, UpgradeView, PaymentView, PaymentConfirmationView
+from .views import ProfileEditView
 
 urlpatterns = [
     path('dashboard/', DashboardView.as_view(), name='dashboard'),
@@ -13,6 +10,4 @@ urlpatterns = [
     path('upgrade/', UpgradeView.as_view(), name='upgrade'),
     path('payment/', PaymentView.as_view(), name='payment'),
     path('payment/confirmation/', PaymentConfirmationView.as_view(), name='payment_confirmation'),
-    path('forgot-password/', ForgotPasswordView.as_view(), name='forgot_password'),
-    path('reset-password/', ResetPasswordView.as_view(), name='reset_password'),
 ]

@@ -14,9 +14,8 @@ from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .serializers import SignupSerializer
-from .services import SecurityService, EmailService
-from .forms import ProfileForm, ForgotPasswordForm, ResetPasswordForm
-from .models import PasswordResetToken, User
+from .services import SecurityService
+from .forms import ProfileForm
 from django.shortcuts import get_object_or_404
 
 from users.jobs.models import Job, Application, SavedJob
@@ -208,79 +207,3 @@ class PaymentConfirmationView(LoginRequiredMixin, View):
         if not profile.is_premium:
             return HttpResponseRedirect(reverse('upgrade'))
         return render(request, 'users/payment_confirmation.html')
-
-
-class ForgotPasswordView(View):
-    """View for requesting a password reset via email."""
-
-    def get(self, request, *args, **kwargs):
-        form = ForgotPasswordForm()
-        return render(request, 'users/forgot_password.html', {'form': form})
-
-    def post(self, request, *args, **kwargs):
-        form = ForgotPasswordForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data['email']
-            try:
-                user = User.objects.get(email=email)
-                # Create password reset token
-                token = PasswordResetToken.create_for_user(user)
-                # Send email with verification code
-                if EmailService.send_password_reset_email(user, token.code):
-                    return render(request, 'users/forgot_password_sent.html', {'email': email})
-                else:
-                    form.add_error(None, 'Failed to send email. Please try again later.')
-            except User.DoesNotExist:
-                # Don't reveal if email exists (security)
-                return render(request, 'users/forgot_password_sent.html', {'email': email})
-
-        return render(request, 'users/forgot_password.html', {'form': form})
-
-
-class ResetPasswordView(View):
-    """View for resetting password with verification code."""
-
-    def get(self, request, *args, **kwargs):
-        form = ResetPasswordForm()
-        context = {'form': form}
-        return render(request, 'users/reset_password.html', context)
-
-    def post(self, request, *args, **kwargs):
-        form = ResetPasswordForm(request.POST)
-        context = {'form': form}
-
-        if form.is_valid():
-            code = form.cleaned_data['code'].strip()
-            new_password = form.cleaned_data['new_password']
-
-            try:
-                token = PasswordResetToken.objects.get(code=code)
-
-                # Check if token is expired
-                if token.is_expired():
-                    form.add_error('code', 'Verification code has expired. Please request a new one.')
-                    return render(request, 'users/reset_password.html', context)
-
-                # Check if token is already used
-                if token.is_used:
-                    form.add_error('code', 'Verification code has already been used.')
-                    return render(request, 'users/reset_password.html', context)
-
-                # Update user password
-                user = token.user
-                user.set_password(new_password)
-                user.save()
-
-                # Mark token as used
-                token.mark_as_used()
-
-                # Redirect to success page
-                return render(request, 'users/reset_password_success.html', {
-                    'username': user.username
-                })
-
-            except PasswordResetToken.DoesNotExist:
-                form.add_error('code', 'Invalid verification code.')
-                return render(request, 'users/reset_password.html', context)
-
-        return render(request, 'users/reset_password.html', context)
