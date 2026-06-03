@@ -16,6 +16,18 @@
       <form method="post" enctype="multipart/form-data" class="signup-form">
         {% csrf_token %}
         <div class="form-group">
+          <label class="form-label">First name</label>
+          {{ form.first_name }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last name</label>
+          {{ form.last_name }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email address</label>
+          {{ form.email }}
+        </div>
+        <div class="form-group">
           <label class="form-label">Profile picture</label>
           {{ form.profile_picture }}
           <small class="form-note">Recommended size: 400x400px. JPG or PNG.</small>

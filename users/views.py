@@ -37,6 +37,47 @@ class PremiumTokenObtainPairView(TokenObtainPairView):
     serializer_class = PremiumTokenObtainPairSerializer
 
 
+class ProfileCompletionMixin:
+    def _get_profile_completion(self, user):
+        profile = user.get_or_create_profile()
+        score = 0
+
+        # Core account details
+        if user.email:
+            score += 15
+        if user.first_name:
+            score += 15
+        if user.last_name:
+            score += 15
+
+        # Optional profile details
+        if profile.profile_picture:
+            score += 10
+        if profile.bio:
+            score += 10
+        if profile.location:
+            score += 10
+        if profile.website:
+            score += 10
+        if profile.phone:
+            score += 10
+
+        return min(score, 100)
+
+    def _get_profile_completion_details(self, user):
+        profile = user.get_or_create_profile()
+        return [
+            {'label': 'Email', 'complete': bool(user.email)},
+            {'label': 'First name', 'complete': bool(user.first_name)},
+            {'label': 'Last name', 'complete': bool(user.last_name)},
+            {'label': 'Profile picture', 'complete': bool(profile.profile_picture)},
+            {'label': 'Bio', 'complete': bool(profile.bio)},
+            {'label': 'Location', 'complete': bool(profile.location)},
+            {'label': 'Website', 'complete': bool(profile.website)},
+            {'label': 'Phone', 'complete': bool(profile.phone)},
+        ]
+
+
 class SignupAPIView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = SignupSerializer(data=request.data)
@@ -101,7 +142,7 @@ class DashboardView(LoginRequiredMixin, View):
         return redirect('developer_dashboard')
 
 
-class DeveloperDashboardView(LoginRequiredMixin, TemplateView):
+class DeveloperDashboardView(ProfileCompletionMixin, LoginRequiredMixin, TemplateView):
     template_name = 'users/developer_dashboard.html'
 
     def get_context_data(self, **kwargs):
@@ -124,18 +165,9 @@ class DeveloperDashboardView(LoginRequiredMixin, TemplateView):
         })
         return context
 
-    def _get_profile_completion(self, user):
-        score = 40
-        if user.email:
-            score += 20
-        if user.first_name:
-            score += 15
-        if user.last_name:
-            score += 15
-        return min(score, 100)
 
 
-class ProfileView(LoginRequiredMixin, TemplateView):
+class ProfileView(ProfileCompletionMixin, LoginRequiredMixin, TemplateView):
     template_name = 'users/profile.html'
 
     def get_context_data(self, **kwargs):
@@ -143,6 +175,8 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         context['user_profile'] = self.request.user
         # expose profile object for templates
         context['profile'] = self.request.user.get_or_create_profile()
+        context['profile_completion'] = self._get_profile_completion(self.request.user)
+        context['profile_completion_details'] = self._get_profile_completion_details(self.request.user)
         return context
 
 

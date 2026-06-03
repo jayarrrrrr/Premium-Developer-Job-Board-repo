@@ -9,10 +9,61 @@ MAX_IMAGE_SIZE = 5 * 1024 * 1024  # 5MB
 
 class ProfileForm(forms.ModelForm):
     remove_profile_picture = forms.BooleanField(required=False, initial=False)
+    first_name = forms.CharField(
+        required=False,
+        max_length=150,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'First name',
+        })
+    )
+    last_name = forms.CharField(
+        required=False,
+        max_length=150,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Last name',
+        })
+    )
+    email = forms.EmailField(
+        required=False,
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Email address',
+        })
+    )
 
     class Meta:
         model = Profile
         fields = ['profile_picture', 'bio', 'location', 'website', 'phone']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and getattr(self.instance, 'user', None):
+            self.fields['first_name'].initial = self.instance.user.first_name
+            self.fields['last_name'].initial = self.instance.user.last_name
+            self.fields['email'].initial = self.instance.user.email
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email:
+            existing_user = User.objects.filter(email=email).exclude(pk=self.instance.user.pk).first()
+            if existing_user:
+                raise ValidationError('That email is already in use by another account.')
+        return email
+
+    def save(self, commit=True):
+        profile = super().save(commit=False)
+        user = profile.user
+        user.first_name = self.cleaned_data.get('first_name', user.first_name)
+        user.last_name = self.cleaned_data.get('last_name', user.last_name)
+        email = self.cleaned_data.get('email')
+        if email is not None:
+            user.email = email
+        if commit:
+            user.save()
+            profile.save()
+        return profile
 
     def clean_profile_picture(self):
         pic = self.cleaned_data.get('profile_picture')

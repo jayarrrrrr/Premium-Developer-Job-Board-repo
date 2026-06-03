@@ -39,6 +39,15 @@
 
     <div class="dashboard-card card-modern">
       <h2>Profile Summary</h2>
+      <div class="profile-completion-summary">
+        <p class="kpi-label">Profile Completion</p>
+        <p class="kpi-value">{{ profile_completion }}%</p>
+        <ul class="profile-completion-list">
+          {% for item in profile_completion_details %}
+            <li class="{% if item.complete %}complete{% else %}incomplete{% endif %}">✓ {{ item.label }}</li>
+          {% endfor %}
+        </ul>
+      </div>
       {% with profile=user_profile.get_or_create_profile %}
         <p>{{ profile.bio|default:"No bio added yet." }}</p>
         <div class="profile-detail-grid">
