@@ -129,6 +129,8 @@ class Profile(models.Model):
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+import secrets
+from django.conf import settings
 
 
 @receiver(post_save, sender=User)
@@ -144,3 +146,43 @@ def save_user_profile(sender, instance, **kwargs):
         instance.profile.save()
     except Profile.DoesNotExist:
         pass
+
+
+class PasswordResetToken(models.Model):
+    """Store password reset tokens with email verification codes."""
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='password_reset_token')
+    code = models.CharField(max_length=10, unique=True)
+    email = models.EmailField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Reset token for {self.user.email}"
+
+    @classmethod
+    def generate_code(cls):
+        """Generate a random 6-digit verification code."""
+        code_length = getattr(settings, 'PASSWORD_RESET_CODE_LENGTH', 6)
+        return ''.join([str(i) for i in secrets.token_bytes(code_length)])[:code_length]
+
+    @classmethod
+    def create_for_user(cls, user):
+        """Create a new password reset token for a user."""
+        code = cls.generate_code()
+        token, created = cls.objects.update_or_create(
+            user=user,
+            defaults={'code': code, 'email': user.email, 'is_used': False}
+        )
+        return token
+
+    def is_expired(self):
+        """Check if the token is expired."""
+        from django.utils import timezone
+        timeout_seconds = getattr(settings, 'PASSWORD_RESET_TIMEOUT', 3600)
+        time_diff = (timezone.now() - self.created_at).total_seconds()
+        return time_diff > timeout_seconds
+
+    def mark_as_used(self):
+        """Mark the token as used."""
+        self.is_used = True
+        self.save(update_fields=['is_used'])

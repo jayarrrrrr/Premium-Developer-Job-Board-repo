@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Job Board</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+        }
+        .header {
+            background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            border-radius: 6px 6px 0 0;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 30px;
+            border: 1px solid #e0e0e0;
+            border-top: none;
+        }
+        .greeting {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .info-box {
+            background-color: #f5f5f5;
+            border-left: 4px solid #0066cc;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .info-box strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #0066cc;
+        }
+        .info-item {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+        .info-item span {
+            display: inline-block;
+            min-width: 80px;
+            color: #666;
+        }
+        .features {
+            margin: 25px 0;
+        }
+        .features h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .feature-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        .feature-list li:before {
+            content: "✓ ";
+            color: #0066cc;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #0066cc;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 600;
+            margin: 20px 0;
+        }
+        .cta-button:hover {
+            background-color: #0052a3;
+        }
+        .next-steps {
+            background-color: #e8f1ff;
+            border: 1px solid #b3d9ff;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .next-steps h3 {
+            color: #0052a3;
+            margin-top: 0;
+        }
+        .next-steps ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .next-steps li {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+        .footer {
+            background-color: #f9f9f9;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            border: 1px solid #e0e0e0;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+        }
+        .footer-link {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+        .divider {
+            border-top: 1px solid #e0e0e0;
+            margin: 20px 0;
+        }
+        .security-note {
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Welcome to Job Board!</h1>
+            <p>Your account is ready to go</p>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                Hello <strong>{{ user.first_name|default:user.username }}</strong>,
+            </div>
+            
+            <p>Welcome! Your account has been successfully created. You're now part of a thriving community of developers and employers discovering premium opportunities.</p>
+            
+            <div class="info-box">
+                <strong>Account Details:</strong>
+                <div class="info-item">
+                    <span>Username:</span> {{ username }}
+                </div>
+                <div class="info-item">
+                    <span>Email:</span> {{ email }}
+                </div>
+            </div>
+            
+            <div class="next-steps">
+                <h3>🚀 Get Started in 3 Steps:</h3>
+                <ol>
+                    <li><strong>Complete Your Profile</strong> - Add a photo, bio, and location to attract employers</li>
+                    <li><strong>Explore Opportunities</strong> - Browse premium job listings tailored to your skills</li>
+                    <li><strong>Apply & Connect</strong> - Apply to positions and connect with employers</li>
+                </ol>
+            </div>
+            
+            <div class="features">
+                <h3>✨ What You Can Do Now:</h3>
+                <ul class="feature-list">
+                    <li>Browse premium job listings with salary ranges</li>
+                    <li>Save jobs for later</li>
+                    <li>Apply to positions directly</li>
+                    <li>Manage your professional profile</li>
+                    <li>Upgrade to premium for exclusive features</li>
+                </ul>
+            </div>
+            
+            <center>
+                <a href="https://premium-job-board.up.railway.app/login/" class="cta-button">Log In to Your Account</a>
+            </center>
+            
+            <div class="security-note">
+                <strong>🔒 Security Tip:</strong> Keep your password safe and never share it with anyone. We will never ask for your password via email.
+            </div>
+            
+            <div class="divider"></div>
+            
+            <p style="font-size: 14px; color: #666;">
+                If you have any questions or need assistance, don't hesitate to reach out to our support team. We're here to help!
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p style="margin: 0 0 10px 0;">© Job Board. All rights reserved.</p>
+            <p style="margin: 0;">
+                <a href="#" class="footer-link">Privacy Policy</a> | 
+                <a href="#" class="footer-link">Terms of Service</a> | 
+                <a href="#" class="footer-link">Contact Support</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
