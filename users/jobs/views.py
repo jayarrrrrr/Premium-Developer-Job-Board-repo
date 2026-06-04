@@ -462,11 +462,19 @@ class CompanyCreateView(LoginRequiredMixin, EmployerRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         form = CompanyForm(request.POST, request.FILES)
-        if form.is_valid():
-            company = form.save(commit=False)
-            company.employer = request.user
-            company.save()
-            return redirect('employer_dashboard')
+        try:
+            if form.is_valid():
+                company = form.save(commit=False)
+                company.employer = request.user
+                company.save()
+                messages.success(request, 'Company profile created successfully.')
+                return redirect('employer_dashboard')
+            else:
+                logger.warning(f'Company creation form validation errors: {form.errors}')
+        except Exception as e:
+            logger.error(f'Error creating company: {e}', exc_info=True)
+            messages.error(request, f'Error creating company: {str(e)}')
+        
         return render(request, 'jobs/company_form.html', {'form': form, 'creating': True})
 
 
@@ -479,17 +487,34 @@ class CompanyUpdateView(LoginRequiredMixin, EmployerRequiredMixin, View):
     def post(self, request, pk, *args, **kwargs):
         company = get_object_or_404(Company, pk=pk, employer=request.user)
         form = CompanyForm(request.POST, request.FILES, instance=company)
-        if form.is_valid():
-            instance = form.save(commit=False)
-            if form.cleaned_data.get('remove_logo'):
-                try:
-                    if instance.logo:
-                        instance.logo.delete(save=False)
-                except Exception:
-                    pass
-                instance.logo = None
-            instance.save()
-            return redirect('employer_dashboard')
+        
+        try:
+            if form.is_valid():
+                instance = form.save(commit=False)
+                
+                # Handle logo removal if requested
+                if form.cleaned_data.get('remove_logo'):
+                    # Delete existing logo from storage
+                    if company.logo:
+                        try:
+                            if hasattr(company.logo, 'delete') and callable(company.logo.delete):
+                                company.logo.delete(save=False)
+                        except Exception as e:
+                            logger.warning(f'Failed to delete logo: {e}')
+                    # Clear logo field (whether a new file was uploaded or not)
+                    instance.logo = None
+                
+                instance.save()
+                messages.success(request, 'Company profile updated successfully.')
+                return redirect('employer_dashboard')
+            else:
+                # Log form errors for debugging
+                logger.warning(f'Company form validation errors: {form.errors}')
+        except Exception as e:
+            logger.error(f'Error updating company profile: {e}', exc_info=True)
+            messages.error(request, f'Error updating company profile: {str(e)}')
+        
+        # Return form with errors
         return render(request, 'jobs/company_form.html', {'form': form, 'company': company})
 
 
@@ -507,17 +532,29 @@ class CompanyProfileView(LoginRequiredMixin, EmployerRequiredMixin, View):
     def post(self, request, pk, *args, **kwargs):
         company = get_object_or_404(Company, pk=pk, employer=request.user)
         form = CompanyForm(request.POST, request.FILES, instance=company)
-        if form.is_valid():
-            instance = form.save(commit=False)
-            # Handle logo removal if requested
-            if form.cleaned_data.get('remove_logo'):
-                try:
-                    if instance.logo:
-                        instance.logo.delete(save=False)
-                except Exception:
-                    pass
-                instance.logo = None
-            
-            instance.save()
-            return redirect('employer_dashboard')
+        
+        try:
+            if form.is_valid():
+                instance = form.save(commit=False)
+                # Handle logo removal if requested
+                if form.cleaned_data.get('remove_logo'):
+                    # Delete existing logo from storage
+                    if company.logo:
+                        try:
+                            if hasattr(company.logo, 'delete') and callable(company.logo.delete):
+                                company.logo.delete(save=False)
+                        except Exception as e:
+                            logger.warning(f'Failed to delete logo: {e}')
+                    # Clear logo field (whether a new file was uploaded or not)
+                    instance.logo = None
+                
+                instance.save()
+                messages.success(request, 'Company profile updated successfully.')
+                return redirect('employer_dashboard')
+            else:
+                logger.warning(f'Company update form validation errors: {form.errors}')
+        except Exception as e:
+            logger.error(f'Error updating company profile: {e}', exc_info=True)
+            messages.error(request, f'Error updating company profile: {str(e)}')
+        
         return render(request, 'jobs/company_form.html', {'form': form, 'company': company})

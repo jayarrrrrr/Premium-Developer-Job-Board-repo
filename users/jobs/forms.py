@@ -20,14 +20,23 @@ class CompanyForm(forms.ModelForm):
         if not logo:
             return logo
 
-        # Validate content type if available
-        content_type = getattr(logo, 'content_type', None)
-        if content_type and content_type not in ALLOWED_IMAGE_TYPES:
-            raise ValidationError('Unsupported image type. Allowed: JPG, PNG, WEBP.')
+        try:
+            # Validate content type if available
+            content_type = getattr(logo, 'content_type', None)
+            if content_type and content_type not in ALLOWED_IMAGE_TYPES:
+                raise ValidationError('Unsupported image type. Allowed: JPG, PNG, WEBP.')
 
-        # Validate file size
-        if logo.size > MAX_IMAGE_SIZE:
-            raise ValidationError('Logo file too large (max 5MB).')
+            # Validate file size (if size is accessible)
+            size = getattr(logo, 'size', None)
+            if size and size > MAX_IMAGE_SIZE:
+                raise ValidationError('Logo file too large (max 5MB).')
+        except ValidationError:
+            raise
+        except Exception as e:
+            # Log unexpected errors but don't fail validation
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f'Error validating logo: {e}')
 
         return logo
 
