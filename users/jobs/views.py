@@ -480,13 +480,15 @@ class CompanyUpdateView(LoginRequiredMixin, EmployerRequiredMixin, View):
         company = get_object_or_404(Company, pk=pk, employer=request.user)
         form = CompanyForm(request.POST, request.FILES, instance=company)
         if form.is_valid():
+            instance = form.save(commit=False)
             if form.cleaned_data.get('remove_logo'):
                 try:
-                    company.logo.delete(save=False)
+                    if instance.logo:
+                        instance.logo.delete(save=False)
                 except Exception:
                     pass
-                company.logo = None
-            form.save()
+                instance.logo = None
+            instance.save()
             return redirect('employer_dashboard')
         return render(request, 'jobs/company_form.html', {'form': form, 'company': company})
 
@@ -506,14 +508,16 @@ class CompanyProfileView(LoginRequiredMixin, EmployerRequiredMixin, View):
         company = get_object_or_404(Company, pk=pk, employer=request.user)
         form = CompanyForm(request.POST, request.FILES, instance=company)
         if form.is_valid():
+            instance = form.save(commit=False)
             # Handle logo removal if requested
             if form.cleaned_data.get('remove_logo'):
                 try:
-                    company.logo.delete(save=False)
+                    if instance.logo:
+                        instance.logo.delete(save=False)
                 except Exception:
                     pass
-                company.logo = None
+                instance.logo = None
             
-            form.save()
+            instance.save()
             return redirect('employer_dashboard')
         return render(request, 'jobs/company_form.html', {'form': form, 'company': company})
