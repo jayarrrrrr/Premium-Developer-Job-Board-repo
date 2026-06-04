@@ -384,4 +384,3 @@ window.addEventListener('DOMContentLoaded', async () => {
 	await loadJobs(params);
 });
 
-*** End Patch
