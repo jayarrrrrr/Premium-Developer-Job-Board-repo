@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
   <!-- LARGE HERO SECTION -->
@@ -119,5 +120,5 @@
     </article>
   </template>
 
-  <script src="/static/frontend/search.js"></script>
+  <script src="{% static 'frontend/search.js' %}"></script>
 {% endblock %}
