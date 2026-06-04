@@ -88,6 +88,14 @@ from django.urls import reverse
 logger = logging.getLogger(__name__)
 
 
+class EmployerRequiredMixin(UserPassesTestMixin):
+    def test_func(self):
+        try:
+            return self.request.user.is_authenticated and self.request.user.get_or_create_profile().role == 'EMPLOYER'
+        except Exception:
+            return False
+
+
 class JobListView(TemplateView):
     template_name = 'jobs/list.html'
 
@@ -99,6 +107,18 @@ class JobListView(TemplateView):
         context['job_count'] = approved_jobs.count()
         context['active_jobs'] = approved_jobs.count()
         context['employment_type_choices'] = Job.EMPLOYMENT_CHOICES
+        return context
+
+
+class EmployerJobsListView(LoginRequiredMixin, EmployerRequiredMixin, TemplateView):
+    """List view for employers to manage their own jobs."""
+    template_name = 'jobs/employer_jobs_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        jobs = self.request.user.jobs.all().order_by('-created_at')
+        context['jobs'] = jobs
+        context['job_count'] = jobs.count()
         return context
 
 
@@ -136,14 +156,6 @@ class JobDetailView(View):
             'can_apply': can_apply,
             'already_applied': already_applied,
         })
-
-
-class EmployerRequiredMixin(UserPassesTestMixin):
-    def test_func(self):
-        try:
-            return self.request.user.is_authenticated and self.request.user.get_or_create_profile().role == 'EMPLOYER'
-        except Exception:
-            return False
 
 
 class JobCreateView(LoginRequiredMixin, EmployerRequiredMixin, View):

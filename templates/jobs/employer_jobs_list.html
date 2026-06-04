@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <section class="marketplace-hero">
+    <div class="container-wide">
+      <div class="hero-copy">
+        <p class="eyebrow">Job Management</p>
+        <h1>Manage Your Job Listings</h1>
+        <p class="hero-text">Edit, view details, manage applicants, and control your active job postings.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="container-wide">
+    <div class="action-buttons" style="margin-bottom: 2rem;">
+      <a href="{% url 'job_create' %}" class="btn btn-primary">Post New Job</a>
+      <a href="{% url 'employer_dashboard' %}" class="btn btn-outline">Back to Dashboard</a>
+    </div>
+
+    {% if jobs %}
+      <div class="card-modern">
+        <div class="table-wrapper">
+          <table class="table-modern">
+            <thead>
+              <tr>
+                <th>Job Title</th>
+                <th>Company</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Applicants</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for job in jobs %}
+                <tr>
+                  <td><a href="{% url 'job_detail' job.pk %}" style="color: inherit; text-decoration: none;"><strong>{{ job.title }}</strong></a></td>
+                  <td>{{ job.company.company_name }}</td>
+                  <td>{{ job.location }}</td>
+                  <td><span class="table-badge {{ job.status|lower }}">{{ job.get_status_display }}</span></td>
+                  <td>{{ job.applications.count }}</td>
+                  <td>{{ job.created_at|date:'M d, Y' }}</td>
+                  <td class="actions">
+                    <a href="{% url 'job_edit' job.pk %}" class="text-button">Edit</a>
+                    <a href="{% url 'job_applicants' job.pk %}" class="text-button">Applicants</a>
+                    <form method="post" action="{% url 'job_delete' job.pk %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this job?');">
+                      {% csrf_token %}
+                      <button type="submit" class="text-button danger">Delete</button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% else %}
+      <div class="card-modern" style="text-align: center; padding: 3rem 2rem;">
+        <p class="eyebrow">No jobs posted</p>
+        <h2>You haven't posted any jobs yet.</h2>
+        <p style="margin: 1rem 0;">Start hiring by posting your first job opening.</p>
+        <a href="{% url 'job_create' %}" class="btn btn-primary">Post Your First Job</a>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

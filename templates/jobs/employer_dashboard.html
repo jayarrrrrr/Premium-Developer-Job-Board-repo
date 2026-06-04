@@ -57,7 +57,7 @@
 
     <section class="action-buttons">
       <a href="{% url 'job_create' %}" class="btn btn-primary">Post New Job</a>
-      <a href="{% url 'employer_dashboard' %}" class="btn btn-outline">Manage Jobs</a>
+      <a href="{% url 'employer_jobs' %}" class="btn btn-outline">Manage Jobs</a>
       {% with first_job=jobs.first %}
         {% if first_job %}
           <a href="{% url 'job_applicants' first_job.pk %}" class="btn btn-outline">Review Applicants</a>
@@ -124,15 +124,17 @@
             <tbody>
               {% for job in active_jobs %}
                 <tr>
-                  <td><strong>{{ job.title }}</strong></td>
+                  <td><a href="{% url 'job_detail' job.pk %}" style="color: inherit; text-decoration: none;"><strong>{{ job.title }}</strong></a></td>
                   <td><span class="table-badge {{ job.status|lower }}">{{ job.get_status_display }}</span></td>
                   <td>{{ job.applications.count }}</td>
                   <td class="actions">
                     <a href="{% url 'job_edit' job.pk %}" class="text-button">Edit</a>
-                    <a href="{% url 'job_applicants' job.pk %}" class="text-button">Applicants</a>                    <form method="post" action="{% url 'job_delete' job.pk %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this job?');">
+                    <a href="{% url 'job_applicants' job.pk %}" class="text-button">Applicants</a>
+                    <form method="post" action="{% url 'job_delete' job.pk %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this job?');">
                       {% csrf_token %}
                       <button type="submit" class="text-button danger">Delete</button>
-                    </form>                  </td>
+                    </form>
+                  </td>
                 </tr>
               {% empty %}
                 <tr>
