@@ -64,6 +64,11 @@ class JobViewSet(viewsets.ReadOnlyModelViewSet):
         if location:
             queryset = queryset.filter(location__icontains=location)
 
+        # Filter by exact employment type if provided via frontend filters.
+        employment_type = (self.request.query_params.get('employment_type') or '').strip()
+        if employment_type and employment_type.lower() != 'all':
+            queryset = queryset.filter(employment_type__iexact=employment_type)
+
         logger.debug('JobViewSet returning queryset count=%d', queryset.count())
         return queryset
 
@@ -88,10 +93,12 @@ class JobListView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        all_jobs = Job.objects.all()
-        logger.debug('JobListView loaded jobs count=%d', all_jobs.count())
-        context['jobs'] = all_jobs
-        context['job_count'] = all_jobs.count()
+        approved_jobs = Job.objects.approved()
+        logger.debug('JobListView loaded jobs count=%d', approved_jobs.count())
+        context['jobs'] = approved_jobs
+        context['job_count'] = approved_jobs.count()
+        context['active_jobs'] = approved_jobs.count()
+        context['employment_type_choices'] = Job.EMPLOYMENT_CHOICES
         return context
 
 

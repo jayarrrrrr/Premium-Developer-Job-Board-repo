@@ -4,6 +4,7 @@ const searchForm = document.querySelector('#search-form');
 const searchInput = document.querySelector('#search-input');
 const locationInput = document.querySelector('#location-input');
 const template = document.querySelector('#job-card-template');
+const filterChips = document.querySelectorAll('.filter-chip');
 
 console.log('[search.js] DOM elements resolved:', {
 	jobList,
@@ -19,6 +20,9 @@ function buildQuery(params) {
 	if (params.search) searchParams.set('search', params.search);
 	if (params.location) searchParams.set('location', params.location);
 	if (params.page) searchParams.set('page', params.page);
+	if (params.employment_type && params.employment_type.toLowerCase() !== 'all') {
+		searchParams.set('employment_type', params.employment_type);
+	}
 	return searchParams.toString();
 }
 
@@ -57,24 +61,28 @@ function getCompanyInitials(company) {
 		return 'C';
 	}
 }
-
 function getJobTags(job) {
-	const tags = []; 
-	try {
-		const title = (job?.title || '').toLowerCase();
-		const location = (job?.location || '').toLowerCase();
-		if (title.includes('remote') || location.includes('remote')) tags.push('Remote');
-		if (title.includes('senior')) tags.push('Senior');
-		if (title.includes('backend') || title.includes('api')) tags.push('Backend');
-		if (title.includes('django')) tags.push('Django');
-		if (title.includes('python')) tags.push('Python');
-		if (title.includes('react')) tags.push('React');
-		if (!tags.length) tags.push('Full-Time');
-	} catch (e) {
-		console.warn('[search.js] getJobTags: error processing tags, using defaults', e);
-		tags.push('Full-Time');
-	}
-	return [...new Set(tags)].slice(0, 6);
+	return (job?.skills_required || '')
+		.split(/[,;|]/)
+		.map((skill) => skill.trim())
+		.filter(Boolean)
+		.slice(0, 6);
+}
+
+function getActiveEmploymentType() {
+	const activeChip = document.querySelector('.filter-chip.active');
+	return activeChip?.dataset.employmentType || 'all';
+}
+
+function setActiveFilterChip(employmentType) {
+	const chips = document.querySelectorAll('.filter-chip');
+	chips.forEach((chip) => {
+		if (chip.dataset.employmentType === String(employmentType)) {
+			chip.classList.add('active');
+		} else {
+			chip.classList.remove('active');
+		}
+	});
 }
 
 function renderJobs(data) {
@@ -173,7 +181,8 @@ function renderJobs(data) {
 			const companyOk = setSafeText('.company-name', job.company, 'Unknown Company');
 			const summaryOk = setSafeText('.job-summary', job.summary, 'Exciting opportunity to join our team.');
 			const locationOk = setSafeText('.location-badge', job.location, 'Remote');
-			const employmentOk = setSafeText('.badge-type', job.employment_type, 'Full-Time');
+			const employmentOk = setSafeText('.badge-type', job.employment_type, 'Not specified');
+			const locationOk = setSafeText('.location-badge', job.location, 'Not specified');
 			const salaryOk = setSafeText('.job-salary', job.salary_range, 'Competitive');
 
 			// Handle logo
@@ -368,6 +377,7 @@ function getSearchParams() {
 		search: searchInput.value.trim(),
 		location: locationInput.value.trim(),
 		page: new URLSearchParams(window.location.search).get('page') || 1,
+		employment_type: getActiveEmploymentType(),
 	};
 }
 
@@ -380,6 +390,7 @@ function populateFields() {
 	const urlParams = new URLSearchParams(window.location.search);
 	searchInput.value = urlParams.get('search') || '';
 	locationInput.value = urlParams.get('location') || '';
+	setActiveFilterChip(urlParams.get('employment_type') || 'all');
 }
 
 searchForm?.addEventListener('submit', async (event) => {
@@ -394,5 +405,16 @@ window.addEventListener('DOMContentLoaded', async () => {
 	populateFields();
 	const params = getSearchParams();
 	await loadJobs(params);
+	// Wire filter chips to update the list via employment_type
+	const chips = document.querySelectorAll('.filter-chip');
+	chips.forEach((chip) => {
+		chip.addEventListener('click', async () => {
+			setActiveFilterChip(chip.dataset.employmentType || 'all');
+			const params = getSearchParams();
+			params.page = 1;
+			updateUrl(params);
+			await loadJobs(params);
+		});
+	});
 });
 

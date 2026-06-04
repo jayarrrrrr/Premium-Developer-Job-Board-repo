@@ -26,9 +26,11 @@
       </div>
 
       <div class="job-details-row">
-        <span class="badge badge-secondary">{{ job.employment_type|default:'Full-Time' }}</span>
+        <span class="badge badge-secondary">{{ job.employment_type|default:'Not specified' }}</span>
         <span class="badge badge-outline">{{ job.location }}</span>
-        <span class="badge">Remote</span>
+        {% if job.location and 'remote' in job.location|lower %}
+          <span class="badge">Remote</span>
+        {% endif %}
       </div>
 
       <div class="job-overview">

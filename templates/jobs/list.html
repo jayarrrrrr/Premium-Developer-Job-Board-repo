@@ -29,11 +29,10 @@
         </form>
 
         <div class="search-filters">
-          <button class="filter-chip active">All</button>
-          <button class="filter-chip">Remote</button>
-          <button class="filter-chip">Full-Time</button>
-          <button class="filter-chip">Contract</button>
-          <button class="filter-chip">Startups</button>
+          <button type="button" class="filter-chip active" data-employment-type="all">All</button>
+          {% for value, label in employment_type_choices %}
+            <button type="button" class="filter-chip" data-employment-type="{{ value }}">{{ label }}</button>
+          {% endfor %}
         </div>
       </div>
     </div>
@@ -73,19 +72,20 @@
                       <h3 class="job-title">{{ job.title }}</h3>
                       <div class="company-meta">
                         <p class="company-name">{{ job.company.company_name }}</p>
-                        <span class="location-badge"><i class="icon-location"></i> {{ job.location|default:'Remote' }}</span>
+                        <span class="location-badge"><i class="icon-location"></i> {{ job.location|default:'Not specified' }}</span>
                       </div>
                     </div>
                   </div>
                   <p class="job-summary">{{ job.description|truncatechars:140|default:'No description available.' }}</p>
                   <div class="card-meta-row">
                     <div class="badge-group">
-                      <span class="badge badge-type">{{ job.employment_type|default:'Full-Time' }}</span>
-                      <span class="badge badge-remote">{% if 'remote' in job.location|lower %}Remote{% else %}On-site{% endif %}</span>
+                      <span class="badge badge-type">{{ job.employment_type|default:'Not specified' }}</span>
                     </div>
                   </div>
                   <div class="skills-chips">
-                    <span class="skill-chip">{{ job.skills_required|default:'Full-Time' }}</span>
+                    {% if job.skills_required %}
+                      <span class="skill-chip">{{ job.skills_required }}</span>
+                    {% endif %}
                   </div>
                   <div class="card-footer">
                     <div class="salary-display">
@@ -143,7 +143,6 @@
       <div class="card-meta-row">
         <div class="badge-group">
           <span class="badge badge-type"></span>
-          <span class="badge badge-remote"></span>
         </div>
       </div>
 
