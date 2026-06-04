@@ -39,10 +39,13 @@ class JobPostingSerializer(serializers.ModelSerializer):
 
 class JobSerializer(serializers.ModelSerializer):
     """Serializer used by the public job listing endpoint."""
-    company = serializers.CharField(source='company.company_name', read_only=True)
+    company = serializers.CharField(source='company.company_name', read_only=True, default='', allow_null=True)
+    location = serializers.CharField(allow_null=True, default='', required=False)
+    employment_type = serializers.CharField(allow_null=True, default='', required=False)
+    skills_required = serializers.CharField(allow_null=True, default='', required=False)
     logo = serializers.SerializerMethodField()
     salary_range = serializers.SerializerMethodField()
-    summary = serializers.CharField(source='description', read_only=True)
+    summary = serializers.CharField(source='description', read_only=True, allow_null=True, default='')
     application_link = serializers.SerializerMethodField()
     debug_info = serializers.SerializerMethodField()
 
@@ -76,7 +79,7 @@ class JobSerializer(serializers.ModelSerializer):
         if request and getattr(request.user, 'is_authenticated', False):
             profile = request.user.get_or_create_profile()
             if profile.role == 'EMPLOYER' or profile.is_premium:
-                return obj.salary
+                return obj.salary or ''
         return 'Premium members only. Upgrade to view salary details.'
 
     def get_application_link(self, obj):
@@ -95,6 +98,18 @@ class JobSerializer(serializers.ModelSerializer):
             'role': profile.role,
             'is_premium': bool(profile.is_premium),
         }
+
+    def to_representation(self, instance):
+        """Ensure all fields have safe defaults and never return None for required fields."""
+        data = super().to_representation(instance)
+        # Ensure these fields never cause null reference errors in frontend
+        data['title'] = data.get('title') or 'Untitled Position'
+        data['company'] = data.get('company') or 'Unknown Company'
+        data['location'] = data.get('location') or 'Not specified'
+        data['summary'] = data.get('summary') or 'No description available'
+        data['employment_type'] = data.get('employment_type') or 'Not specified'
+        data['skills_required'] = data.get('skills_required') or 'Not specified'
+        return data
 
 
 class JobAdminSerializer(serializers.ModelSerializer):

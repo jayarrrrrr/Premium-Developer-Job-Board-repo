@@ -104,6 +104,11 @@ function renderJobs(data) {
   data.results.forEach((job, index) => {
     console.log(`[search.js] renderJobs: processing job ${index + 1}/${data.results.length}`, job);
     try {
+      if (!job || !job.id) {
+        console.error('[search.js] renderJobs: job object is invalid', job);
+        return;
+      }
+
       console.log('[search.js] renderJobs: cloning template for job', job.id);
       const clone = template.content.cloneNode(true);
       console.log('[search.js] renderJobs: template cloned successfully', clone);
@@ -113,8 +118,8 @@ function renderJobs(data) {
       const companyNameEl = clone.querySelector('.company-name');
       if (!jobTitleEl) throw new Error('Missing .job-title element in template');
       if (!companyNameEl) throw new Error('Missing .company-name element in template');
-      jobTitleEl.textContent = job.title;
-      companyNameEl.textContent = job.company;
+      jobTitleEl.textContent = job.title || 'Untitled Position';
+      companyNameEl.textContent = job.company || 'Unknown Company';
 
       // Update company logo
       const logoImage = clone.querySelector('.company-logo');
@@ -133,10 +138,15 @@ function renderJobs(data) {
 
       // Update job location
       const locationBadge = clone.querySelector('.location-badge');
-      if (locationBadge) {
-        locationBadge.textContent = job.location || 'Remote';
-      } else {
+      if (!locationBadge) {
         console.warn('[search.js] renderJobs: .location-badge not found in template for job', job.id);
+      } else {
+        try {
+          const locationText = job.location && job.location !== '' ? job.location : 'Remote';
+          locationBadge.textContent = locationText;
+        } catch (err) {
+          console.error('[search.js] renderJobs: error setting location badge text', err, job);
+        }
       }
 
       // Update job summary
