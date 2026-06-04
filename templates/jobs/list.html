@@ -61,7 +61,48 @@
           </div>
 
           <!-- JOB LISTINGS GRID -->
-          <div id="job-list" class="job-listings"></div>
+          <div id="job-list" class="job-listings">
+            {% if jobs %}
+              {% for job in jobs %}
+                <article class="marketplace-job-card">
+                  <div class="card-company-header">
+                    <div class="company-logo-wrapper">
+                      <span class="company-initial">{{ job.company.company_name|default:'C'|slice:':2'|upper }}</span>
+                    </div>
+                    <div class="company-info">
+                      <h3 class="job-title">{{ job.title }}</h3>
+                      <div class="company-meta">
+                        <p class="company-name">{{ job.company.company_name }}</p>
+                        <span class="location-badge"><i class="icon-location"></i> {{ job.location|default:'Remote' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="job-summary">{{ job.description|truncatechars:140|default:'No description available.' }}</p>
+                  <div class="card-meta-row">
+                    <div class="badge-group">
+                      <span class="badge badge-type">{{ job.employment_type|default:'Full-Time' }}</span>
+                      <span class="badge badge-remote">{% if 'remote' in job.location|lower %}Remote{% else %}On-site{% endif %}</span>
+                    </div>
+                  </div>
+                  <div class="skills-chips">
+                    <span class="skill-chip">{{ job.skills_required|default:'Full-Time' }}</span>
+                  </div>
+                  <div class="card-footer">
+                    <div class="salary-display">
+                      <span class="salary-label">Salary</span>
+                      <p class="job-salary">Premium members only. Upgrade to view salary details.</p>
+                    </div>
+                    <a class="btn-card-apply btn-primary" href="{% url 'job_detail' job.id %}">View details</a>
+                  </div>
+                </article>
+              {% endfor %}
+            {% else %}
+              <div class="card-modern" style="text-align: center; padding: 3rem 2rem;">
+                <p class="eyebrow">No jobs found</p>
+                <h2>There are no job listings yet.</h2>
+              </div>
+            {% endif %}
+          </div>
 
           <!-- PAGINATION -->
           <div id="pagination-controls" class="pagination-controls"></div>

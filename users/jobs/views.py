@@ -88,10 +88,10 @@ class JobListView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        approved_jobs = Job.objects.approved()
-        logger.debug('JobListView loaded approved jobs count=%d', approved_jobs.count())
-        context['jobs'] = approved_jobs
-        context['job_count'] = approved_jobs.count()
+        all_jobs = Job.objects.all()
+        logger.debug('JobListView loaded jobs count=%d', all_jobs.count())
+        context['jobs'] = all_jobs
+        context['job_count'] = all_jobs.count()
         return context
 
 
