@@ -59,6 +59,14 @@
   letter-spacing: -0.02em;
 }
 
+.employer-jobs-hero .hero-copy h1 {
+  color: white;
+  background: none;
+  -webkit-background-clip: initial;
+  -webkit-text-fill-color: initial;
+  background-clip: initial;
+}
+
 .hero-text {
   margin-top: 1.2rem;
   max-width: 600px;
