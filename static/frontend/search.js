@@ -318,6 +318,18 @@ function getCookie(name) {
   return cookieValue;
 }
 
+function safeSetText(el, value, defaultValue = '') {
+  try {
+    if (!el) return false;
+    if (typeof el.textContent === 'undefined') return false;
+    el.textContent = value || defaultValue;
+    return true;
+  } catch (e) {
+    console.warn('[search.js] safeSetText: could not set textContent', e, el);
+    return false;
+  }
+}
+
 function renderPagination(data) {
   paginationControls.innerHTML = '';
   const page = Number(data.page || 1);
