@@ -4,7 +4,10 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'jobboard_project.settings')
 django.setup()
 
-from users.jobs.models import JobPosting
+from django.contrib.auth import get_user_model
+from users.jobs.models import JobPosting, Job, Company
+
+User = get_user_model()
 
 sample_jobs = [
     {
@@ -33,15 +36,50 @@ sample_jobs = [
     },
 ]
 
-for job in sample_jobs:
+employer, created = User.objects.get_or_create(
+    username='employer1',
+    defaults={
+        'email': 'employer@example.com',
+    },
+)
+if created:
+    employer.set_password('Password123!')
+    employer.save()
+
+profile = employer.get_or_create_profile()
+if profile.role != 'EMPLOYER':
+    profile.role = 'EMPLOYER'
+    profile.save(update_fields=['role'])
+
+for job_data in sample_jobs:
     JobPosting.objects.update_or_create(
-        title=job['title'],
-        company=job['company'],
+        title=job_data['title'],
+        company=job_data['company'],
         defaults={
-            'location': job['location'],
-            'summary': job['summary'],
-            'salary_range': job['salary_range'],
-            'application_link': job['application_link'],
+            'location': job_data['location'],
+            'summary': job_data['summary'],
+            'salary_range': job_data['salary_range'],
+            'application_link': job_data['application_link'],
+        },
+    )
+
+    company, _ = Company.objects.update_or_create(
+        employer=employer,
+        company_name=job_data['company'],
+        defaults={
+            'location': job_data['location'],
+        },
+    )
+
+    Job.objects.update_or_create(
+        title=job_data['title'],
+        company=company,
+        defaults={
+            'employer': employer,
+            'description': job_data['summary'],
+            'location': job_data['location'],
+            'salary': job_data['salary_range'],
+            'status': Job.STATUS_APPROVED,
         },
     )
 
