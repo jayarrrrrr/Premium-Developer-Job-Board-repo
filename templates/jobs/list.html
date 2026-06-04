@@ -60,7 +60,7 @@
           </div>
 
           <!-- JOB LISTINGS GRID -->
-          <div id="job-list" class="job-listings">
+          <div id="job-list" class="job-listings" data-is-employer="{% if request.user.is_authenticated and request.user.profile_role == 'EMPLOYER' %}true{% else %}false{% endif %}">
             {% if jobs %}
               {% for job in jobs %}
                 <article class="marketplace-job-card">

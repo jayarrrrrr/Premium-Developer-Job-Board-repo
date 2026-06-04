@@ -1,4 +1,5 @@
 const jobList = document.querySelector('#job-list');
+const isEmployer = jobList?.dataset.isEmployer === 'true';
 const paginationControls = document.querySelector('#pagination-controls');
 const searchForm = document.querySelector('#search-form');
 const searchInput = document.querySelector('#search-input');
@@ -234,15 +235,22 @@ function renderJobs(data) {
 				console.warn('[search.js] renderJobs: Error handling skills for job', job.id, e);
 			}
 
-			// Handle apply button
+			// Handle apply/view button
 			try {
 				const applyBtn = clone.querySelector('.btn-card-apply');
 				if (applyBtn) {
-					if (job.application_link && job.application_link.startsWith('http')) {
+					if (isEmployer) {
+						applyBtn.href = `/jobs/job/${job.id}/`;
+						safeSetText(applyBtn, 'View details');
+						applyBtn.removeAttribute('target');
+						applyBtn.removeAttribute('rel');
+						applyBtn.style.opacity = '';
+					} else if (job.application_link && job.application_link.startsWith('http')) {
 						applyBtn.href = job.application_link;
 						safeSetText(applyBtn, 'Apply now');
 						applyBtn.target = '_blank';
 						applyBtn.rel = 'noopener noreferrer';
+						applyBtn.style.opacity = '';
 					} else {
 						applyBtn.href = '/upgrade/';
 						safeSetText(applyBtn, 'Premium to apply');
