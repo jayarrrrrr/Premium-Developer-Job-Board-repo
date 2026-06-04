@@ -1,0 +1,1284 @@
+{
+  "info": {
+    "name": "Job Board API",
+    "description": "Complete API collection for the Premium Developer Job Board application. Covers authentication, user profiles, job listings, applications, employer management, and admin operations.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "description": "Endpoints for user registration and JWT token management. No authentication required.",
+      "item": [
+        {
+          "name": "Register a new user",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/signup/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "signup", ""]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"johndoe\",\n  \"email\": \"johndoe@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"role\": \"JOB_SEEKER\",\n  \"honeypot\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Register a new user. Role choices: \"JOB_SEEKER\" or \"EMPLOYER\"."
+          }
+        },
+        {
+          "name": "Obtain JWT Tokens (Login)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.access) {",
+                  "    pm.collectionVariables.set(\"access_token\", jsonData.access);",
+                  "}",
+                  "if (jsonData.refresh) {",
+                  "    pm.collectionVariables.set(\"refresh_token\", jsonData.refresh);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/token/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "token", ""]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"johndoe\",\n  \"password\": \"SecurePass123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Obtain JWT access and refresh tokens. The test script automatically saves the tokens to collection variables."
+          }
+        },
+        {
+          "name": "Refresh JWT Access Token",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/token/refresh/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "token", "refresh", ""]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Refresh the JWT access token using the refresh token."
+          }
+        },
+        {
+          "name": "Verify JWT Token",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/token/verify/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "token", "verify", ""]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{access_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Verify a JWT token."
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Profile",
+      "description": "Endpoints for user profile and dashboard. Requires Bearer token authentication.",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{access_token}}",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "Get Current User Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v2/profile/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "profile", ""]
+            },
+            "description": "Get the current authenticated user's profile."
+          }
+        },
+        {
+          "name": "Developer Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v2/dashboard/developer/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "dashboard", "developer", ""]
+            },
+            "description": "Get developer dashboard statistics. Requires DEVELOPER role."
+          }
+        },
+        {
+          "name": "Employer Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v2/dashboard/employer/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "dashboard", "employer", ""]
+            },
+            "description": "Get employer dashboard statistics. Requires EMPLOYER role."
+          }
+        },
+        {
+          "name": "Debug Premium Flags",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/debug/premium-flags/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "debug", "premium-flags", ""]
+            },
+            "description": "Debug premium flags. No auth required, but shows more detail if authenticated."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Jobs — Public / Read",
+      "description": "Read-only job endpoints (legacy). Requires Bearer token authentication.",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{access_token}}",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "List All Jobs (Legacy)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/jobs/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "jobs", ""]
+            },
+            "description": "List all jobs. Read-only legacy endpoint."
+          }
+        },
+        {
+          "name": "Get Job Detail (Legacy)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/jobs/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "jobs", "1", ""]
+            },
+            "description": "Get job detail by ID. Legacy endpoint."
+          }
+        },
+        {
+          "name": "List All Job Postings (Legacy)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/jobpostings/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "jobpostings", ""]
+            },
+            "description": "List all job postings. Legacy endpoint."
+          }
+        },
+        {
+          "name": "Get Job Posting Detail (Legacy)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/jobpostings/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "jobpostings", "1", ""]
+            },
+            "description": "Get job posting detail by ID. Legacy endpoint."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Jobs V2 — Full CRUD",
+      "description": "Full CRUD job endpoints (v2). Requires Bearer token authentication. Write operations require Employer role.",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{access_token}}",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "List All Jobs (V2)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v2/jobs/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "jobs", ""]
+            },
+            "description": "List all jobs using the v2 endpoint."
+          }
+        },
+        {
+          "name": "Get Job Detail (V2)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v2/jobs/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "jobs", "1", ""]
+            },
+            "description": "Get job detail by ID using the v2 endpoint."
+          }
+        },
+        {
+          "name": "Create a New Job (Employer Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v2/jobs/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "jobs", ""]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Senior Python Developer\",\n  \"description\": \"We are looking for an experienced Python developer to join our team. You will work on backend services, APIs, and data pipelines.\",\n  \"location\": \"Remote\",\n  \"salary\": \"$90,000 - $120,000\",\n  \"employment_type\": \"Full-Time\",\n  \"skills_required\": \"Python, Django, REST APIs, PostgreSQL\",\n  \"status\": \"PENDING\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Create a new job posting. Requires Employer role."
+          }
+        },
+        {
+          "name": "Update a Job (Employer Only)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v2/jobs/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "jobs", "1", ""]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Lead Python Developer\",\n  \"description\": \"Updated job description for lead developer role.\",\n  \"location\": \"New York, NY\",\n  \"salary\": \"$110,000 - $140,000\",\n  \"employment_type\": \"Full-Time\",\n  \"skills_required\": \"Python, Django, REST APIs, PostgreSQL, Docker\",\n  \"status\": \"PENDING\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Full update of a job posting by ID. Requires Employer role."
+          }
+        },
+        {
+          "name": "Partial Update a Job (Employer Only)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v2/jobs/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "jobs", "1", ""]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"salary\": \"$115,000 - $145,000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Partial update of a job posting by ID. Requires Employer role."
+          }
+        },
+        {
+          "name": "Delete a Job (Employer Only)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v2/jobs/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "jobs", "1", ""]
+            },
+            "description": "Delete a job posting by ID. Requires Employer role."
+          }
+        },
+        {
+          "name": "Apply to a Job (Developer Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v2/jobs/1/apply/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "jobs", "1", "apply", ""]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resume\": \"https://example.com/my-resume.pdf\",\n  \"cover_letter\": \"I am very excited to apply for this position. I have 5 years of experience in Python and Django development.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Apply to a job by ID. Requires Developer role."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Applications",
+      "description": "Application management endpoints. Requires Bearer token authentication.",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{access_token}}",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "List Applications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v2/applications/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "applications", ""]
+            },
+            "description": "List applications. Developers see their own; Employers see applications for their jobs."
+          }
+        },
+        {
+          "name": "Get Application Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v2/applications/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "applications", "1", ""]
+            },
+            "description": "Get application detail by ID."
+          }
+        },
+        {
+          "name": "Create Application (Developer Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v2/applications/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "applications", ""]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"job\": 1,\n  \"resume\": \"https://example.com/my-resume.pdf\",\n  \"cover_letter\": \"I am very excited to apply for this position.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Create a new application. Requires Developer role."
+          }
+        },
+        {
+          "name": "Update Application Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v2/applications/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "applications", "1", ""]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"REVIEWED\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Partially update an application, e.g. update its status."
+          }
+        },
+        {
+          "name": "Delete Application",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v2/applications/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "applications", "1", ""]
+            },
+            "description": "Delete an application by ID."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Web Views (HTML — Session-based)",
+      "description": "Browser-facing Django views. These are session-based HTML endpoints, not REST API endpoints. No API auth required. Use a browser or include session cookies for authenticated views.",
+      "auth": {
+        "type": "noauth"
+      },
+      "item": [
+        {
+          "name": "Job Listing Page",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/jobs/",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", ""]
+            },
+            "description": "HTML job listing page."
+          }
+        },
+        {
+          "name": "Job Detail Page",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/jobs/job/1/",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", "job", "1", ""]
+            },
+            "description": "HTML job detail page for job with id=1."
+          }
+        },
+        {
+          "name": "Apply to Job via Web Form",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/jobs/job/1/apply/",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", "job", "1", "apply", ""]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "resume",
+                  "type": "file",
+                  "src": "",
+                  "description": "Resume file upload"
+                },
+                {
+                  "key": "cover_letter",
+                  "value": "I am very excited to apply for this position.",
+                  "type": "text",
+                  "description": "Cover letter text"
+                }
+              ]
+            },
+            "description": "Apply to a job via the web form (multipart/form-data). Session-based."
+          }
+        },
+        {
+          "name": "Save / Unsave a Job",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/jobs/job/1/save/",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", "job", "1", "save", ""]
+            },
+            "description": "Toggle save/unsave a job. Session-based."
+          }
+        },
+        {
+          "name": "Saved Jobs Page",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/jobs/saved/",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", "saved", ""]
+            },
+            "description": "HTML page listing saved jobs. Session-based."
+          }
+        },
+        {
+          "name": "Application History Page",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/jobs/applications/",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", "applications", ""]
+            },
+            "description": "HTML application history page. Session-based."
+          }
+        },
+        {
+          "name": "Employer Dashboard Page",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/jobs/employer/dashboard/",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", "employer", "dashboard", ""]
+            },
+            "description": "HTML employer dashboard page. Session-based."
+          }
+        },
+        {
+          "name": "Company Profile Page",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/jobs/employer/company/",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", "employer", "company", ""]
+            },
+            "description": "HTML company profile page. Session-based."
+          }
+        },
+        {
+          "name": "Create Company (Form)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/jobs/employer/company/create/",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", "employer", "company", "create", ""]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "company_name",
+                  "value": "Acme Corp",
+                  "type": "text"
+                },
+                {
+                  "key": "location",
+                  "value": "New York, NY",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "A leading technology company.",
+                  "type": "text"
+                },
+                {
+                  "key": "website",
+                  "value": "https://acmecorp.example.com",
+                  "type": "text"
+                },
+                {
+                  "key": "logo",
+                  "type": "file",
+                  "src": "",
+                  "description": "Company logo file upload"
+                }
+              ]
+            },
+            "description": "Create a company profile via web form. Session-based."
+          }
+        },
+        {
+          "name": "Edit Company (Form)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/jobs/employer/company/1/edit/",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", "employer", "company", "1", "edit", ""]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "company_name",
+                  "value": "Acme Corp Updated",
+                  "type": "text"
+                },
+                {
+                  "key": "location",
+                  "value": "San Francisco, CA",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "An updated description.",
+                  "type": "text"
+                },
+                {
+                  "key": "website",
+                  "value": "https://acmecorp.example.com",
+                  "type": "text"
+                }
+              ]
+            },
+            "description": "Edit a company profile by ID via web form. Session-based."
+          }
+        },
+        {
+          "name": "Create Job Posting (Form)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/jobs/employer/create/",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", "employer", "create", ""]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Senior Python Developer",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "We are looking for an experienced Python developer.",
+                  "type": "text"
+                },
+                {
+                  "key": "location",
+                  "value": "Remote",
+                  "type": "text"
+                },
+                {
+                  "key": "salary",
+                  "value": "$90,000 - $120,000",
+                  "type": "text"
+                },
+                {
+                  "key": "employment_type",
+                  "value": "Full-Time",
+                  "type": "text"
+                },
+                {
+                  "key": "skills_required",
+                  "value": "Python, Django, REST APIs",
+                  "type": "text"
+                }
+              ]
+            },
+            "description": "Create a job posting via web form. Session-based."
+          }
+        },
+        {
+          "name": "Edit Job (Form)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/jobs/employer/1/edit/",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", "employer", "1", "edit", ""]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Lead Python Developer",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Updated job description.",
+                  "type": "text"
+                },
+                {
+                  "key": "location",
+                  "value": "New York, NY",
+                  "type": "text"
+                },
+                {
+                  "key": "salary",
+                  "value": "$110,000 - $140,000",
+                  "type": "text"
+                }
+              ]
+            },
+            "description": "Edit a job posting by ID via web form. Session-based."
+          }
+        },
+        {
+          "name": "Delete Job (Form)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/jobs/employer/1/delete/",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", "employer", "1", "delete", ""]
+            },
+            "description": "Delete a job posting by ID via web form. Session-based."
+          }
+        },
+        {
+          "name": "View Applicants for Job",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/jobs/employer/1/applicants/",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", "employer", "1", "applicants", ""]
+            },
+            "description": "View applicants for a job by ID. Session-based."
+          }
+        },
+        {
+          "name": "Accept Application",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/jobs/employer/application/1/accept/",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", "employer", "application", "1", "accept", ""]
+            },
+            "description": "Accept an application by ID. Session-based."
+          }
+        },
+        {
+          "name": "Admin — Pending Jobs",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/jobs/admin/pending/",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", "admin", "pending", ""]
+            },
+            "description": "Admin view of pending jobs awaiting approval. Session-based."
+          }
+        },
+        {
+          "name": "Admin — Approve Job",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/jobs/admin/1/approve/",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", "admin", "1", "approve", ""]
+            },
+            "description": "Admin approves a job posting by ID. Session-based."
+          }
+        },
+        {
+          "name": "Admin — Reject Job",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/jobs/admin/1/reject/",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", "admin", "1", "reject", ""]
+            },
+            "description": "Admin rejects a job posting by ID. Session-based."
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Account Pages (HTML — Session-based)",
+      "description": "Browser-facing Django views for user account management. Session-based, no API auth required.",
+      "auth": {
+        "type": "noauth"
+      },
+      "item": [
+        {
+          "name": "Signup Page",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/signup/",
+              "host": ["{{base_url}}"],
+              "path": ["signup", ""]
+            },
+            "description": "HTML signup page."
+          }
+        },
+        {
+          "name": "Login Page",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/login/",
+              "host": ["{{base_url}}"],
+              "path": ["login", ""]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "username",
+                  "value": "johndoe",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "SecurePass123!",
+                  "type": "text"
+                }
+              ]
+            },
+            "description": "HTML login page. Submits username and password via form."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/logout/",
+              "host": ["{{base_url}}"],
+              "path": ["logout", ""]
+            },
+            "description": "Logout the current session."
+          }
+        },
+        {
+          "name": "Dashboard",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/dashboard/",
+              "host": ["{{base_url}}"],
+              "path": ["dashboard", ""]
+            },
+            "description": "HTML dashboard page. Session-based."
+          }
+        },
+        {
+          "name": "Developer Dashboard",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/developer/dashboard/",
+              "host": ["{{base_url}}"],
+              "path": ["developer", "dashboard", ""]
+            },
+            "description": "HTML developer dashboard page. Session-based."
+          }
+        },
+        {
+          "name": "Profile Page",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/profile/",
+              "host": ["{{base_url}}"],
+              "path": ["profile", ""]
+            },
+            "description": "HTML profile page. Session-based."
+          }
+        },
+        {
+          "name": "Edit Profile",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/profile/edit/",
+              "host": ["{{base_url}}"],
+              "path": ["profile", "edit", ""]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "bio",
+                  "value": "Experienced Python developer with 5+ years.",
+                  "type": "text"
+                },
+                {
+                  "key": "location",
+                  "value": "New York, NY",
+                  "type": "text"
+                },
+                {
+                  "key": "website",
+                  "value": "https://johndoe.example.com",
+                  "type": "text"
+                },
+                {
+                  "key": "phone",
+                  "value": "+1-555-000-0000",
+                  "type": "text"
+                },
+                {
+                  "key": "profile_picture",
+                  "type": "file",
+                  "src": "",
+                  "description": "Profile picture file upload"
+                }
+              ]
+            },
+            "description": "Edit user profile via web form. Session-based."
+          }
+        },
+        {
+          "name": "Upgrade to Premium Page",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/upgrade/",
+              "host": ["{{base_url}}"],
+              "path": ["upgrade", ""]
+            },
+            "description": "HTML upgrade to premium page. Session-based."
+          }
+        },
+        {
+          "name": "Payment Page",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/payment/",
+              "host": ["{{base_url}}"],
+              "path": ["payment", ""]
+            },
+            "description": "HTML payment page. Session-based."
+          }
+        },
+        {
+          "name": "Payment Confirmation",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/payment/confirmation/",
+              "host": ["{{base_url}}"],
+              "path": ["payment", "confirmation", ""]
+            },
+            "description": "HTML payment confirmation page. Session-based."
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/forgot-password/",
+              "host": ["{{base_url}}"],
+              "path": ["forgot-password", ""]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "email",
+                  "value": "johndoe@example.com",
+                  "type": "text"
+                }
+              ]
+            },
+            "description": "Submit forgot password request via web form. Session-based."
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reset-password/",
+              "host": ["{{base_url}}"],
+              "path": ["reset-password", ""]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "code",
+                  "value": "123456",
+                  "type": "text"
+                },
+                {
+                  "key": "new_password",
+                  "value": "NewSecurePass123!",
+                  "type": "text"
+                },
+                {
+                  "key": "confirm_password",
+                  "value": "NewSecurePass123!",
+                  "type": "text"
+                }
+              ]
+            },
+            "description": "Reset password via web form using a reset code. Session-based."
+          }
+        }
+      ]
+    }
+  ]
+}
