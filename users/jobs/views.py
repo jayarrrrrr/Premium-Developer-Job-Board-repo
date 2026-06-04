@@ -197,8 +197,10 @@ class JobDeleteView(LoginRequiredMixin, View):
     def post(self, request, pk, *args, **kwargs):
         job = get_object_or_404(Job, pk=pk)
         if job.employer != request.user and not request.user.is_staff:
+            messages.error(request, 'You do not have permission to delete this job.')
             return redirect('job_list')
         job.delete()
+        messages.success(request, 'Job deleted successfully.')
         return redirect('employer_dashboard')
 
 
@@ -260,10 +262,44 @@ class ApplyJobView(LoginRequiredMixin, View):
         })
 
 
-class SaveJobView(LoginRequiredMixin, View):
+class SaveJobView(View):
+    """Toggle save/unsave for a job.
+    Returns JSON when requested via AJAX, otherwise redirects to saved_jobs.
+    Only non-employer authenticated users can save jobs.
+    """
     def post(self, request, pk, *args, **kwargs):
+        # Determine if request expects JSON
+        accepts_json = 'application/json' in request.META.get('HTTP_ACCEPT', '') or request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+
+        if not request.user.is_authenticated:
+            if accepts_json:
+                from django.http import JsonResponse
+                return JsonResponse({'detail': 'Authentication required.'}, status=401)
+            return redirect('login')
+
+        profile = request.user.get_or_create_profile()
+        if profile.role == 'EMPLOYER':
+            if accepts_json:
+                from django.http import JsonResponse
+                return JsonResponse({'detail': 'Employers cannot save jobs.'}, status=403)
+            messages.error(request, 'Employers cannot save jobs.')
+            return redirect('job_list')
+
         job = get_object_or_404(Job, pk=pk, status=Job.STATUS_APPROVED)
-        SavedJob.objects.get_or_create(user=request.user, job=job)
+
+        saved_obj = SavedJob.objects.filter(user=request.user, job=job).first()
+        if saved_obj:
+            # Unsave
+            saved_obj.delete()
+            saved = False
+        else:
+            SavedJob.objects.create(user=request.user, job=job)
+            saved = True
+
+        if accepts_json:
+            from django.http import JsonResponse
+            return JsonResponse({'saved': saved}, status=200)
+
         return redirect('saved_jobs')
 
 

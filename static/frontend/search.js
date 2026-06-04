@@ -254,14 +254,32 @@ function renderJobs(data) {
       try {
         const saveBtn = clone.querySelector('.card-save-btn');
         if (saveBtn) {
+          // Apply initial saved state from API
+          try {
+            if (job.saved) {
+              saveBtn.classList.add('saved');
+              const svg = saveBtn.querySelector('svg path');
+              if (svg) { svg.style.fill = 'currentColor'; saveBtn.setAttribute('data-saved', 'true'); }
+            } else {
+              const svg = saveBtn.querySelector('svg path');
+              if (svg) { svg.style.fill = 'none'; saveBtn.removeAttribute('data-saved'); }
+            }
+          } catch (e) {
+            console.warn('[search.js] renderJobs: Could not set initial saved state for job', job.id, e);
+          }
+
           saveBtn.addEventListener('click', async (e) => {
             e.preventDefault();
             e.stopPropagation();
             try {
-              const response = await fetch(`/api/jobs/job/${job.id}/save/`, {
+              const response = await fetch(`/jobs/job/${job.id}/save/`, {
                 method: 'POST',
                 credentials: 'same-origin',
-                headers: { 'X-CSRFToken': getCookie('csrftoken') },
+                headers: { 
+                  'X-CSRFToken': getCookie('csrftoken'),
+                  'X-Requested-With': 'XMLHttpRequest',
+                  'Accept': 'application/json'
+                },
               });
               if (response.ok) {
                 const result = await response.json();

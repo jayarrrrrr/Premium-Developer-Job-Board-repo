@@ -129,8 +129,10 @@
                   <td>{{ job.applications.count }}</td>
                   <td class="actions">
                     <a href="{% url 'job_edit' job.pk %}" class="text-button">Edit</a>
-                    <a href="{% url 'job_applicants' job.pk %}" class="text-button">Applicants</a>
-                  </td>
+                    <a href="{% url 'job_applicants' job.pk %}" class="text-button">Applicants</a>                    <form method="post" action="{% url 'job_delete' job.pk %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this job?');">
+                      {% csrf_token %}
+                      <button type="submit" class="text-button danger">Delete</button>
+                    </form>                  </td>
                 </tr>
               {% empty %}
                 <tr>

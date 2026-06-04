@@ -33,6 +33,7 @@
 
             <div class="job-card-footer">
               <a href="{% url 'job_detail' item.job.pk %}" class="btn-primary">Review role</a>
+              <button class="btn-outline remove-saved" data-job-id="{{ item.job.pk }}">Remove</button>
             </div>
           </article>
         {% endfor %}
@@ -48,4 +49,57 @@
       </div>
     </section>
   {% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  document.querySelectorAll('.remove-saved').forEach(button => {
+    button.addEventListener('click', async () => {
+      const jobId = button.dataset.jobId;
+      try {
+        const res = await fetch(`/jobs/job/${jobId}/save/`, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (!data.saved) {
+            // remove the job-card article
+            const card = button.closest('article');
+            if (card) card.remove();
+            // if no saved jobs remain, reload to show empty-state
+            if (document.querySelectorAll('.jobs-grid article').length === 0) {
+              window.location.reload();
+            }
+          }
+        } else if (res.status === 401) {
+          window.location.href = '/login/';
+        }
+      } catch (err) {
+        console.error('Error removing saved job', err);
+      }
+    });
+  });
+});
+</script>
+
 {% endblock %}

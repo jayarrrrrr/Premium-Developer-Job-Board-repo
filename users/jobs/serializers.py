@@ -47,6 +47,7 @@ class JobSerializer(serializers.ModelSerializer):
     salary_range = serializers.SerializerMethodField()
     summary = serializers.CharField(source='description', read_only=True, allow_null=True, default='')
     application_link = serializers.SerializerMethodField()
+    saved = serializers.SerializerMethodField()
     debug_info = serializers.SerializerMethodField()
 
     class Meta:
@@ -63,6 +64,7 @@ class JobSerializer(serializers.ModelSerializer):
             'skills_required',
             'created_at',
             'logo',
+            'saved',
             'debug_info',
         ]
 
@@ -87,6 +89,15 @@ class JobSerializer(serializers.ModelSerializer):
         if request:
             return request.build_absolute_uri(reverse('apply_job', args=[obj.id]))
         return reverse('apply_job', args=[obj.id])
+
+    def get_saved(self, obj):
+        request = self.context.get('request')
+        try:
+            if request and getattr(request.user, 'is_authenticated', False):
+                return obj.saved_jobs.filter(user=request.user).exists()
+        except Exception:
+            pass
+        return False
 
     def get_debug_info(self, obj):
         request = self.context.get('request')
