@@ -89,7 +89,7 @@ class Job(models.Model):
     salary = models.CharField(max_length=120)
     employment_type = models.CharField(max_length=30, choices=EMPLOYMENT_CHOICES, default=EMPLOYMENT_FULL_TIME)
     skills_required = models.CharField(max_length=300, blank=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_APPROVED)
     created_at = models.DateTimeField(auto_now_add=True)
 
     objects = JobManager()
