@@ -44,31 +44,41 @@ function updateUrl(params) {
 }
 
 function getCompanyInitials(company) {
-  return company
-    .split(' ')
-    .map((word) => word[0] || '')
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
+  try {
+    const name = (company || 'C').toString();
+    return name
+      .split(' ')
+      .map((word) => word[0] || '')
+      .slice(0, 2)
+      .join('')
+      .toUpperCase() || 'C';
+  } catch (e) {
+    console.warn('[search.js] getCompanyInitials: error processing initials', e);
+    return 'C';
+  }
 }
 
 function getJobTags(job) {
   const tags = []; 
-  const title = job.title.toLowerCase();
-  const location = job.location.toLowerCase();
-  if (title.includes('remote') || location.includes('remote')) tags.push('Remote');
-  if (title.includes('senior')) tags.push('Senior');
-  if (title.includes('backend') || title.includes('api')) tags.push('Backend');
-  if (title.includes('django')) tags.push('Django');
-  if (title.includes('python')) tags.push('Python');
-  if (title.includes('react')) tags.push('React');
-  if (!tags.length) tags.push('Full-Time');
+  try {
+    const title = (job?.title || '').toLowerCase();
+    const location = (job?.location || '').toLowerCase();
+    if (title.includes('remote') || location.includes('remote')) tags.push('Remote');
+    if (title.includes('senior')) tags.push('Senior');
+    if (title.includes('backend') || title.includes('api')) tags.push('Backend');
+    if (title.includes('django')) tags.push('Django');
+    if (title.includes('python')) tags.push('Python');
+    if (title.includes('react')) tags.push('React');
+    if (!tags.length) tags.push('Full-Time');
+  } catch (e) {
+    console.warn('[search.js] getJobTags: error processing tags, using defaults', e);
+    tags.push('Full-Time');
+  }
   return [...new Set(tags)].slice(0, 6);
 }
 
 function renderJobs(data) {
   console.log('[search.js] renderJobs: called with data', data);
-
 
   if (!jobList) {
     console.error('[search.js] renderJobs: #job-list element not found in DOM');
@@ -101,141 +111,178 @@ function renderJobs(data) {
 
   console.log('[search.js] renderJobs: rendering', data.results.length, 'of', data.count, 'total jobs');
 
+  let successCount = 0;
+  let errorCount = 0;
+
   data.results.forEach((job, index) => {
-    console.log(`[search.js] renderJobs: processing job ${index + 1}/${data.results.length}`, job);
+    if (!job || !job.id) {
+      console.error('[search.js] renderJobs: job object is invalid at index', index, job);
+      errorCount++;
+      return;
+    }
+
     try {
-      if (!job || !job.id) {
-        console.error('[search.js] renderJobs: job object is invalid', job);
+      const clone = template.content.cloneNode(true);
+      
+      // Helper to safely set text content
+      const setSafeText = (selector, value, defaultValue = 'N/A') => {
+        try {
+          const el = clone.querySelector(selector);
+          if (el) {
+            el.textContent = value || defaultValue;
+            return true;
+          } else {
+            console.warn(`[search.js] renderJobs: Missing selector ${selector} for job ${job.id}`);
+            return false;
+          }
+        } catch (e) {
+          console.error(`[search.js] renderJobs: Error setting ${selector}:`, e);
+          return false;
+        }
+      };
+
+      // Helper to safely set attribute
+      const setSafeAttr = (selector, attrName, value) => {
+        try {
+          const el = clone.querySelector(selector);
+          if (el) {
+            el[attrName] = value;
+            return true;
+          }
+          return false;
+        } catch (e) {
+          console.error(`[search.js] renderJobs: Error setting ${attrName} on ${selector}:`, e);
+          return false;
+        }
+      };
+
+      // Set all required fields
+      const titleOk = setSafeText('.job-title', job.title, 'Untitled Position');
+      const companyOk = setSafeText('.company-name', job.company, 'Unknown Company');
+      const summaryOk = setSafeText('.job-summary', job.summary, 'Exciting opportunity to join our team.');
+      const locationOk = setSafeText('.location-badge', job.location, 'Remote');
+      const employmentOk = setSafeText('.badge-type', job.employment_type, 'Full-Time');
+      const salaryOk = setSafeText('.job-salary', job.salary_range, 'Competitive');
+
+      // Handle logo
+      try {
+        const logoImage = clone.querySelector('.company-logo');
+        const logoInitial = clone.querySelector('.company-initial');
+        if (logoImage && logoInitial) {
+          if (job.logo) {
+            logoImage.src = job.logo;
+            logoImage.style.display = 'block';
+            logoInitial.style.display = 'none';
+          } else {
+            logoImage.style.display = 'none';
+            logoInitial.style.display = 'block';
+            logoInitial.textContent = getCompanyInitials(job.company || 'Unknown');
+          }
+        }
+      } catch (e) {
+        console.warn('[search.js] renderJobs: Error handling logo for job', job.id, e);
+      }
+
+      // Handle remote badge
+      try {
+        const badgeRemote = clone.querySelector('.badge-remote');
+        if (badgeRemote) {
+          const isRemote = job.location && job.location.toLowerCase().includes('remote');
+          badgeRemote.textContent = isRemote ? 'Remote' : 'On-site';
+        }
+      } catch (e) {
+        console.warn('[search.js] renderJobs: Error setting remote badge for job', job.id, e);
+      }
+
+      // Handle skill chips
+      try {
+        const skillsContainer = clone.querySelector('.skills-chips');
+        if (skillsContainer) {
+          skillsContainer.innerHTML = '';
+          getJobTags(job).forEach((tag) => {
+            const chip = document.createElement('span');
+            chip.className = 'skill-chip';
+            chip.textContent = tag;
+            skillsContainer.appendChild(chip);
+          });
+        }
+      } catch (e) {
+        console.warn('[search.js] renderJobs: Error handling skills for job', job.id, e);
+      }
+
+      // Handle apply button
+      try {
+        const applyBtn = clone.querySelector('.btn-card-apply');
+        if (applyBtn) {
+          if (job.application_link && job.application_link.startsWith('http')) {
+            applyBtn.href = job.application_link;
+            applyBtn.textContent = 'Apply now';
+            applyBtn.target = '_blank';
+            applyBtn.rel = 'noopener noreferrer';
+          } else {
+            applyBtn.href = '/upgrade/';
+            applyBtn.textContent = 'Premium to apply';
+            applyBtn.style.opacity = '0.6';
+          }
+        }
+      } catch (e) {
+        console.warn('[search.js] renderJobs: Error handling apply button for job', job.id, e);
+      }
+
+      // Handle save button
+      try {
+        const saveBtn = clone.querySelector('.card-save-btn');
+        if (saveBtn) {
+          saveBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            try {
+              const response = await fetch(`/api/jobs/job/${job.id}/save/`, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') },
+              });
+              if (response.ok) {
+                const result = await response.json();
+                saveBtn.classList.toggle('saved', result.saved);
+                const svg = saveBtn.querySelector('svg path');
+                if (svg) {
+                  if (result.saved) {
+                    svg.style.fill = 'currentColor';
+                    saveBtn.setAttribute('data-saved', 'true');
+                  } else {
+                    svg.style.fill = 'none';
+                    saveBtn.removeAttribute('data-saved');
+                  }
+                }
+              } else if (response.status === 401) {
+                window.location.href = '/login/';
+              }
+            } catch (error) {
+              console.error('[search.js] saveBtn click: error saving job', job.id, error);
+            }
+          });
+        }
+      } catch (e) {
+        console.warn('[search.js] renderJobs: Error handling save button for job', job.id, e);
+      }
+
+      // Only log critical missing fields
+      if (!titleOk || !companyOk) {
+        console.error(`[search.js] renderJobs: Critical fields missing for job ${job.id}`);
+        errorCount++;
         return;
       }
 
-      console.log('[search.js] renderJobs: cloning template for job', job.id);
-      const clone = template.content.cloneNode(true);
-      console.log('[search.js] renderJobs: template cloned successfully', clone);
-
-      // Update job title and company info
-      const jobTitleEl = clone.querySelector('.job-title');
-      const companyNameEl = clone.querySelector('.company-name');
-      if (!jobTitleEl) throw new Error('Missing .job-title element in template');
-      if (!companyNameEl) throw new Error('Missing .company-name element in template');
-      jobTitleEl.textContent = job.title || 'Untitled Position';
-      companyNameEl.textContent = job.company || 'Unknown Company';
-
-      // Update company logo
-      const logoImage = clone.querySelector('.company-logo');
-      const logoInitial = clone.querySelector('.company-initial');
-      if (!logoImage) throw new Error('Missing .company-logo element in template');
-      if (!logoInitial) throw new Error('Missing .company-initial element in template');
-      if (job.logo) {
-        logoImage.src = job.logo;
-        logoImage.style.display = 'block';
-        logoInitial.style.display = 'none';
-      } else {
-        logoImage.style.display = 'none';
-        logoInitial.style.display = 'block';
-        logoInitial.textContent = getCompanyInitials(job.company);
-      }
-
-      // Update job location
-      const locationBadge = clone.querySelector('.location-badge');
-      if (!locationBadge) {
-        console.warn('[search.js] renderJobs: .location-badge not found in template for job', job.id);
-      } else {
-        try {
-          const locationText = job.location && job.location !== '' ? job.location : 'Remote';
-          locationBadge.textContent = locationText;
-        } catch (err) {
-          console.error('[search.js] renderJobs: error setting location badge text', err, job);
-        }
-      }
-
-      // Update job summary
-      const jobSummaryEl = clone.querySelector('.job-summary');
-      if (!jobSummaryEl) throw new Error('Missing .job-summary element in template');
-      jobSummaryEl.textContent = job.summary || 'Exciting opportunity to join a growing team.';
-
-      // Update employment badges
-      const badgeType = clone.querySelector('.badge-type');
-      const badgeRemote = clone.querySelector('.badge-remote');
-      if (!badgeType) throw new Error('Missing .badge-type element in template');
-      if (!badgeRemote) throw new Error('Missing .badge-remote element in template');
-      badgeType.textContent = job.employment_type || 'Full-Time';
-      badgeRemote.textContent = job.location?.toLowerCase().includes('remote') ? 'Remote' : 'On-site';
-
-      // Update skill chips
-      const skillsContainer = clone.querySelector('.skills-chips');
-      if (!skillsContainer) throw new Error('Missing .skills-chips element in template');
-      skillsContainer.innerHTML = '';
-      getJobTags(job).forEach((tag) => {
-        const chip = document.createElement('span');
-        chip.className = 'skill-chip';
-        chip.textContent = tag;
-        skillsContainer.appendChild(chip);
-      });
-
-      // Update salary display
-      const salaryText = job.salary_range || '$Competitive';
-      const salaryElement = clone.querySelector('.job-salary');
-      if (!salaryElement) throw new Error('Missing .job-salary element in template');
-      salaryElement.textContent = salaryText;
-
-      // Update apply button
-      const applyBtn = clone.querySelector('.btn-card-apply');
-      if (!applyBtn) throw new Error('Missing .btn-card-apply element in template');
-      if (job.application_link && job.application_link.startsWith('http')) {
-        applyBtn.href = job.application_link;
-        applyBtn.textContent = 'Apply now';
-        applyBtn.target = '_blank';
-        applyBtn.rel = 'noopener noreferrer';
-      } else {
-        applyBtn.href = '/upgrade/';
-        applyBtn.textContent = 'Premium to apply';
-        applyBtn.style.opacity = '0.6';
-      }
-
-      // Add save button functionality
-      const saveBtn = clone.querySelector('.card-save-btn');
-      if (!saveBtn) throw new Error('Missing .card-save-btn element in template');
-      saveBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        try {
-          const response = await fetch(`/api/jobs/job/${job.id}/save/`, {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: { 'X-CSRFToken': getCookie('csrftoken') },
-          });
-
-          if (response.ok) {
-            const result = await response.json();
-            // Toggle saved state in UI
-            saveBtn.classList.toggle('saved', result.saved);
-            const svg = saveBtn.querySelector('svg path');
-            if (result.saved) {
-              svg.style.fill = 'currentColor';
-              saveBtn.setAttribute('data-saved', 'true');
-            } else {
-              svg.style.fill = 'none';
-              saveBtn.removeAttribute('data-saved');
-            }
-          } else if (response.status === 401) {
-            window.location.href = '/login/';
-          }
-        } catch (error) {
-          console.error('[search.js] saveBtn click: error saving job', job.id, error);
-        }
-      });
-
-      console.log('[search.js] renderJobs: appending card for job', job.id, 'to #job-list');
       jobList.appendChild(clone);
-      console.log('[search.js] renderJobs: card appended successfully for job', job.id);
+      successCount++;
     } catch (error) {
-      console.error(`[search.js] renderJobs: error rendering job ${job.id} (index ${index})`, error, job);
+      console.error(`[search.js] renderJobs: Fatal error rendering job ${job.id}:`, error, job);
+      errorCount++;
     }
   });
 
-  console.log('[search.js] renderJobs: all jobs processed, calling renderPagination');
+  console.log(`[search.js] renderJobs: Rendered ${successCount} jobs successfully, ${errorCount} errors`);
   renderPagination(data);
 }
 
