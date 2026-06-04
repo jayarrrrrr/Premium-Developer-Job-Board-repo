@@ -58,3 +58,15 @@ class DebugPremiumAPIView(APIView):
             })
             data['effective_is_premium'] = bool(data.get('profile_is_premium'))
         return Response(data)
+
+
+class DebugJobCountsAPIView(APIView):
+    """Return job counts for the public approved jobs endpoint."""
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        data = {
+            'approved_jobs_count': Job.objects.approved().count(),
+            'total_jobs_count': Job.objects.count(),
+        }
+        return Response(data)

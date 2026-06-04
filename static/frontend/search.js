@@ -5,6 +5,15 @@ const searchInput = document.querySelector('#search-input');
 const locationInput = document.querySelector('#location-input');
 const template = document.querySelector('#job-card-template');
 
+console.log('[search.js] DOM elements resolved:', {
+  jobList,
+  paginationControls,
+  searchForm,
+  searchInput,
+  locationInput,
+  template,
+});
+
 function buildQuery(params) {
   const searchParams = new URLSearchParams();
   if (params.search) searchParams.set('search', params.search);
@@ -16,12 +25,16 @@ function buildQuery(params) {
 async function fetchJobs(params) {
   const query = buildQuery(params);
   const url = `/api/jobs/?${query}`;
+  console.log('[search.js] fetchJobs: requesting', url);
   const response = await fetch(url, { credentials: 'same-origin' });
+  console.log('[search.js] fetchJobs: response status', response.status, response.ok);
   if (!response.ok) {
     jobList.innerHTML = '<p>Unable to load jobs at this time.</p>';
     return null;
   }
-  return response.json();
+  const data = await response.json();
+  console.log('[search.js] fetchJobs: data received', data);
+  return data;
 }
 
 function updateUrl(params) {
@@ -54,120 +67,165 @@ function getJobTags(job) {
 }
 
 function renderJobs(data) {
+  console.log('[search.js] renderJobs: called with data', data);
+
+
+  if (!jobList) {
+    console.error('[search.js] renderJobs: #job-list element not found in DOM');
+    return;
+  }
+  if (!paginationControls) {
+    console.error('[search.js] renderJobs: #pagination-controls element not found in DOM');
+    return;
+  }
+  if (!template) {
+    console.error('[search.js] renderJobs: #job-card-template element not found in DOM');
+    return;
+  }
+
   jobList.innerHTML = '';
-  console.debug('Job list API response', data);
+
   if (!data || !Array.isArray(data.results)) {
+    console.warn('[search.js] renderJobs: data is missing or results is not an array', data);
     jobList.innerHTML = '<div class="card-modern" style="text-align: center; padding: 3rem 2rem;"><p class="eyebrow">No results</p><h2>Unable to load jobs at this time.</h2></div>';
     paginationControls.innerHTML = '';
     return;
   }
 
   if (data.results.length === 0) {
+    console.log('[search.js] renderJobs: no jobs matched the query');
     jobList.innerHTML = '<div class="card-modern" style="text-align: center; padding: 3rem 2rem;"><p class="eyebrow">No results</p><h2>No jobs match your search.</h2><p class="hero-text">Try adjusting your search terms or filters.</p></div>';
     paginationControls.innerHTML = '';
     return;
   }
 
-  console.debug('Jobs returned', data.count, 'results', data.results.length);
-  data.results.forEach((job) => {
-    const clone = template.content.cloneNode(true);
-    
-    // Update job title and company info
-    clone.querySelector('.job-title').textContent = job.title;
-    clone.querySelector('.company-name').textContent = job.company;
-    
-    // Update company logo
-    const logoImage = clone.querySelector('.company-logo');
-    const logoInitial = clone.querySelector('.company-initial');
-    if (job.logo) {
-      logoImage.src = job.logo;
-      logoImage.style.display = 'block';
-      logoInitial.style.display = 'none';
-    } else {
-      logoImage.style.display = 'none';
-      logoInitial.style.display = 'block';
-      logoInitial.textContent = getCompanyInitials(job.company);
-    }
-    
-    // Update job location
-    const locationBadge = clone.querySelector('.location-badge');
-    if (locationBadge) {
-      locationBadge.textContent = job.location || 'Remote';
-    }
+  console.log('[search.js] renderJobs: rendering', data.results.length, 'of', data.count, 'total jobs');
 
-    // Update job summary
-    clone.querySelector('.job-summary').textContent = job.summary || 'Exciting opportunity to join a growing team.';
-    
-    // Update employment badges
-    const badgeType = clone.querySelector('.badge-type');
-    const badgeRemote = clone.querySelector('.badge-remote');
-    badgeType.textContent = job.employment_type || 'Full-Time';
-    badgeRemote.textContent = job.location?.toLowerCase().includes('remote') ? 'Remote' : 'On-site';
-    
-    // Update skill chips
-    const skillsContainer = clone.querySelector('.skills-chips');
-    skillsContainer.innerHTML = '';
-    getJobTags(job).forEach((tag) => {
-      const chip = document.createElement('span');
-      chip.className = 'skill-chip';
-      chip.textContent = tag;
-      skillsContainer.appendChild(chip);
-    });
+  data.results.forEach((job, index) => {
+    console.log(`[search.js] renderJobs: processing job ${index + 1}/${data.results.length}`, job);
+    try {
+      console.log('[search.js] renderJobs: cloning template for job', job.id);
+      const clone = template.content.cloneNode(true);
+      console.log('[search.js] renderJobs: template cloned successfully', clone);
 
-    // Update salary display
-    const salaryText = job.salary_range || '$Competitive';
-    const salaryElement = clone.querySelector('.job-salary');
-    salaryElement.textContent = salaryText;
+      // Update job title and company info
+      const jobTitleEl = clone.querySelector('.job-title');
+      const companyNameEl = clone.querySelector('.company-name');
+      if (!jobTitleEl) throw new Error('Missing .job-title element in template');
+      if (!companyNameEl) throw new Error('Missing .company-name element in template');
+      jobTitleEl.textContent = job.title;
+      companyNameEl.textContent = job.company;
 
-    // Update apply button
-    const applyBtn = clone.querySelector('.btn-card-apply');
-    if (job.application_link && job.application_link.startsWith('http')) {
-      applyBtn.href = job.application_link;
-      applyBtn.textContent = 'Apply now';
-      applyBtn.target = '_blank';
-      applyBtn.rel = 'noopener noreferrer';
-    } else {
-      applyBtn.href = '/upgrade/';
-      applyBtn.textContent = 'Premium to apply';
-      applyBtn.style.opacity = '0.6';
-    }
-
-    // Add save button functionality
-    const saveBtn = clone.querySelector('.card-save-btn');
-    saveBtn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      try {
-        const response = await fetch(`/api/jobs/job/${job.id}/save/`, {
-          method: 'POST',
-          credentials: 'same-origin',
-          headers: { 'X-CSRFToken': getCookie('csrftoken') },
-        });
-
-        if (response.ok) {
-          const result = await response.json();
-          // Toggle saved state in UI
-          saveBtn.classList.toggle('saved', result.saved);
-          const svg = saveBtn.querySelector('svg path');
-          if (result.saved) {
-            svg.style.fill = 'currentColor';
-            saveBtn.setAttribute('data-saved', 'true');
-          } else {
-            svg.style.fill = 'none';
-            saveBtn.removeAttribute('data-saved');
-          }
-        } else if (response.status === 401) {
-          window.location.href = '/login/';
-        }
-      } catch (error) {
-        console.error('Error saving job:', error);
+      // Update company logo
+      const logoImage = clone.querySelector('.company-logo');
+      const logoInitial = clone.querySelector('.company-initial');
+      if (!logoImage) throw new Error('Missing .company-logo element in template');
+      if (!logoInitial) throw new Error('Missing .company-initial element in template');
+      if (job.logo) {
+        logoImage.src = job.logo;
+        logoImage.style.display = 'block';
+        logoInitial.style.display = 'none';
+      } else {
+        logoImage.style.display = 'none';
+        logoInitial.style.display = 'block';
+        logoInitial.textContent = getCompanyInitials(job.company);
       }
-    });
 
-    jobList.appendChild(clone);
+      // Update job location
+      const locationBadge = clone.querySelector('.location-badge');
+      if (locationBadge) {
+        locationBadge.textContent = job.location || 'Remote';
+      } else {
+        console.warn('[search.js] renderJobs: .location-badge not found in template for job', job.id);
+      }
+
+      // Update job summary
+      const jobSummaryEl = clone.querySelector('.job-summary');
+      if (!jobSummaryEl) throw new Error('Missing .job-summary element in template');
+      jobSummaryEl.textContent = job.summary || 'Exciting opportunity to join a growing team.';
+
+      // Update employment badges
+      const badgeType = clone.querySelector('.badge-type');
+      const badgeRemote = clone.querySelector('.badge-remote');
+      if (!badgeType) throw new Error('Missing .badge-type element in template');
+      if (!badgeRemote) throw new Error('Missing .badge-remote element in template');
+      badgeType.textContent = job.employment_type || 'Full-Time';
+      badgeRemote.textContent = job.location?.toLowerCase().includes('remote') ? 'Remote' : 'On-site';
+
+      // Update skill chips
+      const skillsContainer = clone.querySelector('.skills-chips');
+      if (!skillsContainer) throw new Error('Missing .skills-chips element in template');
+      skillsContainer.innerHTML = '';
+      getJobTags(job).forEach((tag) => {
+        const chip = document.createElement('span');
+        chip.className = 'skill-chip';
+        chip.textContent = tag;
+        skillsContainer.appendChild(chip);
+      });
+
+      // Update salary display
+      const salaryText = job.salary_range || '$Competitive';
+      const salaryElement = clone.querySelector('.job-salary');
+      if (!salaryElement) throw new Error('Missing .job-salary element in template');
+      salaryElement.textContent = salaryText;
+
+      // Update apply button
+      const applyBtn = clone.querySelector('.btn-card-apply');
+      if (!applyBtn) throw new Error('Missing .btn-card-apply element in template');
+      if (job.application_link && job.application_link.startsWith('http')) {
+        applyBtn.href = job.application_link;
+        applyBtn.textContent = 'Apply now';
+        applyBtn.target = '_blank';
+        applyBtn.rel = 'noopener noreferrer';
+      } else {
+        applyBtn.href = '/upgrade/';
+        applyBtn.textContent = 'Premium to apply';
+        applyBtn.style.opacity = '0.6';
+      }
+
+      // Add save button functionality
+      const saveBtn = clone.querySelector('.card-save-btn');
+      if (!saveBtn) throw new Error('Missing .card-save-btn element in template');
+      saveBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        try {
+          const response = await fetch(`/api/jobs/job/${job.id}/save/`, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') },
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            // Toggle saved state in UI
+            saveBtn.classList.toggle('saved', result.saved);
+            const svg = saveBtn.querySelector('svg path');
+            if (result.saved) {
+              svg.style.fill = 'currentColor';
+              saveBtn.setAttribute('data-saved', 'true');
+            } else {
+              svg.style.fill = 'none';
+              saveBtn.removeAttribute('data-saved');
+            }
+          } else if (response.status === 401) {
+            window.location.href = '/login/';
+          }
+        } catch (error) {
+          console.error('[search.js] saveBtn click: error saving job', job.id, error);
+        }
+      });
+
+      console.log('[search.js] renderJobs: appending card for job', job.id, 'to #job-list');
+      jobList.appendChild(clone);
+      console.log('[search.js] renderJobs: card appended successfully for job', job.id);
+    } catch (error) {
+      console.error(`[search.js] renderJobs: error rendering job ${job.id} (index ${index})`, error, job);
+    }
   });
 
+  console.log('[search.js] renderJobs: all jobs processed, calling renderPagination');
   renderPagination(data);
 }
 

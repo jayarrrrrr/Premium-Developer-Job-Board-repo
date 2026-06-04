@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from django.core.exceptions import ImproperlyConfigured
 import dj_database_url
 import cloudinary
 
@@ -76,13 +77,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'jobboard_project.wsgi.application'
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
-}
+if os.environ.get('DATABASE_URL'):
+    DATABASES = {
+        'default': dj_database_url.config(
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+elif DEBUG:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+else:
+    raise ImproperlyConfigured('DATABASE_URL must be set in production')
 
 AUTH_PASSWORD_VALIDATORS = [
     {

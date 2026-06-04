@@ -6,7 +6,7 @@ from users.jobs.views import JobPostingViewSet, JobViewSet as JobReadOnlyViewSet
 from users.views import LoginView, LogoutView, SignupView, SignupAPIView, PremiumTokenObtainPairView
 from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 from users.jobs.api import JobViewSet, ApplicationViewSet
-from users.api import UserProfileAPIView, DeveloperDashboardAPIView, EmployerDashboardAPIView, DebugPremiumAPIView
+from users.api import UserProfileAPIView, DeveloperDashboardAPIView, EmployerDashboardAPIView, DebugPremiumAPIView, DebugJobCountsAPIView
 try:
     from rest_framework.schemas import get_schema_view
     from rest_framework.documentation import include_docs_urls
@@ -47,6 +47,7 @@ urlpatterns += [
     path('api/v2/dashboard/employer/', EmployerDashboardAPIView.as_view(), name='api-employer-dashboard'),
     path('api/debug/premium/', UserProfileAPIView.as_view(), name='api-debug-profile'),
     path('api/debug/premium-flags/', DebugPremiumAPIView.as_view(), name='api-debug-premium-flags'),
+    path('api/debug/job-counts/', DebugJobCountsAPIView.as_view(), name='api-debug-job-counts'),
     path('signup/', SignupView.as_view(), name='signup'),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
