@@ -180,9 +180,8 @@ function renderJobs(data) {
 			const titleOk = setSafeText('.job-title', job.title, 'Untitled Position');
 			const companyOk = setSafeText('.company-name', job.company, 'Unknown Company');
 			const summaryOk = setSafeText('.job-summary', job.summary, 'Exciting opportunity to join our team.');
-			const locationOk = setSafeText('.location-badge', job.location, 'Remote');
-			const employmentOk = setSafeText('.badge-type', job.employment_type, 'Not specified');
 			const locationOk = setSafeText('.location-badge', job.location, 'Not specified');
+			const employmentOk = setSafeText('.badge-type', job.employment_type, 'Not specified');
 			const salaryOk = setSafeText('.job-salary', job.salary_range, 'Competitive');
 
 			// Handle logo
