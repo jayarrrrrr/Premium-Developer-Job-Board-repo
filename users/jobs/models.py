@@ -50,12 +50,28 @@ class Company(models.Model):
         logo = models.ImageField(upload_to='company_logos/', blank=True, null=True)
     
     website = models.URLField(blank=True)
+    industry = models.CharField(max_length=120, blank=True)
+    email = models.EmailField(blank=True)
+    phone = models.CharField(max_length=30, blank=True)
+    address = models.CharField(max_length=250, blank=True)
+    company_size = models.CharField(max_length=50, blank=True)
+    founded_year = models.PositiveSmallIntegerField(blank=True, null=True)
     description = models.TextField(blank=True)
     location = models.CharField(max_length=150)
+    views = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.company_name
+
+    def total_jobs(self):
+        return self.jobs.count()
+
+    def active_jobs(self):
+        return self.jobs.filter(status=Job.STATUS_APPROVED).count()
+
+    def total_applications(self):
+        return JobApplication.objects.filter(job__company=self).count()
 
 
 class Job(models.Model):

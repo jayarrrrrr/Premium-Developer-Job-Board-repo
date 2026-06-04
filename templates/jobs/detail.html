@@ -21,7 +21,7 @@
         </div>
         <div class="job-title-row">
           <h2 class="job-title">{{ job.title }}</h2>
-          <p class="job-company">{{ job.company.company_name }}</p>
+          <p class="job-company"><a href="{% url 'company_public' job.company.pk %}">{{ job.company.company_name }}</a></p>
         </div>
       </div>
 
@@ -53,7 +53,7 @@
           </div>
           <div class="job-stat">
             <span>Company</span>
-            <strong>{{ job.company.company_name }}</strong>
+            <strong><a href="{% url 'company_public' job.company.pk %}">{{ job.company.company_name }}</a></strong>
           </div>
         </div>
       </div>

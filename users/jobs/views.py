@@ -455,6 +455,63 @@ class RejectJobView(LoginRequiredMixin, View):
         return redirect('pending_jobs')
 
 
+class CompanyDetailView(LoginRequiredMixin, EmployerRequiredMixin, TemplateView):
+    template_name = 'jobs/company_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        company = get_object_or_404(Company, pk=self.kwargs.get('pk'), employer=self.request.user)
+        jobs = company.jobs.order_by('-created_at')
+        context.update({
+            'company': company,
+            'jobs': jobs,
+            'total_jobs': jobs.count(),
+            'active_jobs_count': jobs.filter(status=Job.STATUS_APPROVED).count(),
+            'total_applications': JobApplication.objects.filter(job__company=company).count(),
+        })
+        return context
+
+
+class CompanyDeleteView(LoginRequiredMixin, EmployerRequiredMixin, View):
+    def get(self, request, pk, *args, **kwargs):
+        company = get_object_or_404(Company, pk=pk, employer=request.user)
+        return render(request, 'jobs/company_confirm_delete.html', {'company': company})
+
+    def post(self, request, pk, *args, **kwargs):
+        company = get_object_or_404(Company, pk=pk, employer=request.user)
+        company.delete()
+        messages.success(request, 'Company deleted successfully.')
+        return redirect('company_profile')
+
+
+class CompanyPublicDetailView(TemplateView):
+    template_name = 'jobs/company_public_profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        company = get_object_or_404(Company, pk=self.kwargs.get('pk'))
+        active_jobs = company.jobs.filter(status=Job.STATUS_APPROVED).order_by('-created_at')
+        total_jobs = company.jobs.count()
+        total_applications = JobApplication.objects.filter(job__company=company).count()
+
+        # Track public company views
+        try:
+            company.views = company.views + 1
+            company.save(update_fields=['views'])
+        except Exception:
+            pass
+
+        context.update({
+            'company': company,
+            'active_jobs': active_jobs,
+            'total_jobs': total_jobs,
+            'active_jobs_count': active_jobs.count(),
+            'total_applications': total_applications,
+            'company_views': company.views,
+        })
+        return context
+
+
 class CompanyCreateView(LoginRequiredMixin, EmployerRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         form = CompanyForm()
@@ -468,7 +525,7 @@ class CompanyCreateView(LoginRequiredMixin, EmployerRequiredMixin, View):
                 company.employer = request.user
                 company.save()
                 messages.success(request, 'Company profile created successfully.')
-                return redirect('employer_dashboard')
+                return redirect('company_profile')
             else:
                 logger.warning(f'Company creation form validation errors: {form.errors}')
         except Exception as e:
@@ -506,7 +563,7 @@ class CompanyUpdateView(LoginRequiredMixin, EmployerRequiredMixin, View):
                 
                 instance.save()
                 messages.success(request, 'Company profile updated successfully.')
-                return redirect('employer_dashboard')
+                return redirect('company_profile')
             else:
                 # Log form errors for debugging
                 logger.warning(f'Company form validation errors: {form.errors}')
@@ -514,47 +571,18 @@ class CompanyUpdateView(LoginRequiredMixin, EmployerRequiredMixin, View):
             logger.error(f'Error updating company profile: {e}', exc_info=True)
             messages.error(request, f'Error updating company profile: {str(e)}')
         
-        # Return form with errors
         return render(request, 'jobs/company_form.html', {'form': form, 'company': company})
 
 
-class CompanyProfileView(LoginRequiredMixin, EmployerRequiredMixin, View):
-    """Redirect helper: if the employer has a company profile, open the edit page;
-    otherwise send them to the create page. This keeps the `company_profile`
-    URL stable for templates and navigation.
-    """
-    def get(self, request, *args, **kwargs):
-        company = request.user.companies.first()
-        if company:
-            return redirect('company_edit', pk=company.pk)
-        return redirect('company_create')
+class CompanyProfileView(LoginRequiredMixin, EmployerRequiredMixin, TemplateView):
+    template_name = 'jobs/company_management.html'
 
-    def post(self, request, pk, *args, **kwargs):
-        company = get_object_or_404(Company, pk=pk, employer=request.user)
-        form = CompanyForm(request.POST, request.FILES, instance=company)
-        
-        try:
-            if form.is_valid():
-                instance = form.save(commit=False)
-                # Handle logo removal if requested
-                if form.cleaned_data.get('remove_logo'):
-                    # Delete existing logo from storage
-                    if company.logo:
-                        try:
-                            if hasattr(company.logo, 'delete') and callable(company.logo.delete):
-                                company.logo.delete(save=False)
-                        except Exception as e:
-                            logger.warning(f'Failed to delete logo: {e}')
-                    # Clear logo field (whether a new file was uploaded or not)
-                    instance.logo = None
-                
-                instance.save()
-                messages.success(request, 'Company profile updated successfully.')
-                return redirect('employer_dashboard')
-            else:
-                logger.warning(f'Company update form validation errors: {form.errors}')
-        except Exception as e:
-            logger.error(f'Error updating company profile: {e}', exc_info=True)
-            messages.error(request, f'Error updating company profile: {str(e)}')
-        
-        return render(request, 'jobs/company_form.html', {'form': form, 'company': company})
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        companies = self.request.user.companies.order_by('-created_at').prefetch_related('jobs')
+        context.update({
+            'companies': companies,
+            'company_count': companies.count(),
+            'total_applications': JobApplication.objects.filter(job__company__employer=self.request.user).count(),
+        })
+        return context

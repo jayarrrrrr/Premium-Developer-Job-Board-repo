@@ -39,17 +39,47 @@
           </div>
 
           <div>
-            <label for="id_location">Location</label>
-            {{ form.location }}
+            <label for="id_industry">Industry</label>
+            {{ form.industry }}
+          </div>
+
+          <div>
+            <label for="id_email">Email</label>
+            {{ form.email }}
+          </div>
+
+          <div>
+            <label for="id_phone">Phone</label>
+            {{ form.phone }}
+          </div>
+
+          <div>
+            <label for="id_address">Address</label>
+            {{ form.address }}
+          </div>
+
+          <div>
+            <label for="id_company_size">Company size</label>
+            {{ form.company_size }}
+          </div>
+
+          <div>
+            <label for="id_founded_year">Founded year</label>
+            {{ form.founded_year }}
           </div>
 
           <div style="grid-column: 1 / -1;">
             <label for="id_description">Description</label>
             {{ form.description }}
           </div>
+
+          <div>
+            <label for="id_location">Location</label>
+            {{ form.location }}
+          </div>
         </div>
 
-        <div style="margin-top: 1rem; display:flex; gap: .5rem;">
+        <div style="margin-top: 1rem; display:flex; gap: .5rem; flex-wrap: wrap;">
           <button type="submit" class="btn btn-primary">Save</button>
           <a href="{% url 'employer_dashboard' %}" class="btn btn-outline">Back to dashboard</a>
         </div>

@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <section class="marketplace-hero">
+    <div class="hero-gradient-bg"></div>
+    <div class="container-wide marketplace-hero-content">
+      <div class="hero-main">
+        <p class="hero-eyebrow">Company Profile</p>
+        <h1>{{ company.company_name }}</h1>
+        <p class="hero-subtitle">Explore open roles, company details, and hiring metrics for this employer.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="container-wide">
+    <div class="grid-two-columns" style="gap:2rem;">
+      <section class="card-modern">
+        <div class="company-detail-header">
+          {% if company.logo %}
+            <img src="{{ company.logo.url }}" alt="{{ company.company_name }} logo" class="company-avatar" />
+          {% else %}
+            <span class="company-avatar company-avatar-fallback">{{ company.company_name|slice:":2"|upper }}</span>
+          {% endif %}
+          <div>
+            <h2>{{ company.company_name }}</h2>
+            <p>{{ company.industry|default:'Industry not set' }}</p>
+            <p>{{ company.location|default:'Location not set' }}</p>
+          </div>
+        </div>
+
+        <div class="company-info-grid">
+          <div><strong>Website</strong><br />{% if company.website %}<a href="{{ company.website }}" target="_blank" rel="noopener">{{ company.website }}</a>{% else %}Not set{% endif %}</div>
+          <div><strong>Email</strong><br />{{ company.email|default:'Not set' }}</div>
+          <div><strong>Phone</strong><br />{{ company.phone|default:'Not set' }}</div>
+          <div><strong>Address</strong><br />{{ company.address|default:'Not set' }}</div>
+          <div><strong>Company size</strong><br />{{ company.company_size|default:'Not set' }}</div>
+          <div><strong>Founded</strong><br />{{ company.founded_year|default:'Not set' }}</div>
+        </div>
+
+        <div class="company-description">
+          <h3>About the company</h3>
+          <p>{{ company.description|default:'No description has been added yet.' }}</p>
+        </div>
+      </section>
+
+      <aside class="card-modern">
+        <div class="kpi-grid">
+          <article class="kpi-card">
+            <p class="kpi-label">Total Jobs</p>
+            <p class="kpi-value">{{ total_jobs }}</p>
+          </article>
+          <article class="kpi-card">
+            <p class="kpi-label">Active Jobs</p>
+            <p class="kpi-value">{{ active_jobs_count }}</p>
+          </article>
+          <article class="kpi-card">
+            <p class="kpi-label">Total Applications</p>
+            <p class="kpi-value">{{ total_applications }}</p>
+          </article>
+          <article class="kpi-card">
+            <p class="kpi-label">Company Views</p>
+            <p class="kpi-value">{{ company_views }}</p>
+          </article>
+        </div>
+      </aside>
+    </div>
+
+    <section class="table-card">
+      <div class="card-header">
+        <div>
+          <h2>Active Jobs</h2>
+          <p>Browse the currently published roles for this company.</p>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table class="table-modern">
+          <thead>
+            <tr>
+              <th>Position</th>
+              <th>Location</th>
+              <th>Employment Type</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for job in active_jobs %}
+              <tr>
+                <td>{{ job.title }}</td>
+                <td>{{ job.location|default:'Not specified' }}</td>
+                <td>{{ job.employment_type|default:'Not specified' }}</td>
+                <td><a href="{% url 'job_detail' job.pk %}" class="text-button">View Job</a></td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="4" style="text-align:center; color: var(--muted);">There are no active roles for this company right now.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+{% endblock %}

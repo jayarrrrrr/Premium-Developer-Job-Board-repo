@@ -13,7 +13,19 @@ class CompanyForm(forms.ModelForm):
 
     class Meta:
         model = Company
-        fields = ['company_name', 'logo', 'website', 'description', 'location']
+        fields = [
+            'company_name',
+            'logo',
+            'website',
+            'industry',
+            'email',
+            'phone',
+            'address',
+            'company_size',
+            'founded_year',
+            'description',
+            'location',
+        ]
 
     def clean_logo(self):
         logo = self.cleaned_data.get('logo')

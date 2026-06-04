@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <section class="marketplace-hero">
+    <div class="hero-gradient-bg"></div>
+    <div class="container-wide marketplace-hero-content">
+      <div class="hero-main">
+        <p class="hero-eyebrow">Company Management</p>
+        <h1>Manage Your Companies</h1>
+        <p class="hero-subtitle">Edit company details, review active listings, and keep your employer brand up to date.</p>
+      </div>
+      <div class="hero-actions">
+        <a href="{% url 'company_create' %}" class="btn btn-primary">Create New Company</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="container-wide">
+    {% if companies %}
+      <div class="table-card">
+        <div class="card-header">
+          <div>
+            <h2>Your Companies</h2>
+            <p>Companies owned by your account and the latest hiring activity for each.</p>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table class="table-modern">
+            <thead>
+              <tr>
+                <th>Logo</th>
+                <th>Company</th>
+                <th>Industry</th>
+                <th>Location</th>
+                <th>Jobs</th>
+                <th>Applications</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for company in companies %}
+                <tr>
+                  <td>
+                    {% if company.logo %}
+                      <img src="{{ company.logo.url }}" alt="{{ company.company_name }} logo" style="height:50px; width:auto; object-fit:contain; border-radius:8px;" />
+                    {% else %}
+                      <span class="badge badge-outline">No logo</span>
+                    {% endif %}
+                  </td>
+                  <td><strong>{{ company.company_name }}</strong><br />{{ company.address|default:company.location|default:'Not specified' }}</td>
+                  <td>{{ company.industry|default:'Not specified' }}</td>
+                  <td>{{ company.location|default:'Not specified' }}</td>
+                  <td>{{ company.jobs.count }}</td>
+                  <td>{{ company.total_applications }}</td>
+                  <td class="actions">
+                    <a href="{% url 'company_detail' company.pk %}" class="text-button">View</a>
+                    <a href="{% url 'company_edit' company.pk %}" class="text-button">Edit</a>
+                    <a href="{% url 'company_delete' company.pk %}" class="text-button danger">Delete</a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% else %}
+      <div class="card-modern" style="padding: 2rem; text-align: center;">
+        <p class="eyebrow">No Companies Yet</p>
+        <h2>Create your first company profile</h2>
+        <p class="small-copy">Companies power your job listings and provide candidates with your employer brand details.</p>
+        <a href="{% url 'company_create' %}" class="btn btn-primary">Create Company</a>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

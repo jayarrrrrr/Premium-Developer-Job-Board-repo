@@ -19,6 +19,9 @@ from .views import (
     CompanyCreateView,
     CompanyUpdateView,
     CompanyProfileView,
+    CompanyDetailView,
+    CompanyDeleteView,
+    CompanyPublicDetailView,
 )
 
 urlpatterns = [
@@ -31,13 +34,16 @@ urlpatterns = [
     path('applications/', ApplicationHistoryView.as_view(), name='application_history'),
     path('employer/company/', CompanyProfileView.as_view(), name='company_profile'),
     path('employer/company/create/', CompanyCreateView.as_view(), name='company_create'),
+    path('employer/company/<int:pk>/', CompanyDetailView.as_view(), name='company_detail'),
     path('employer/company/<int:pk>/edit/', CompanyUpdateView.as_view(), name='company_edit'),
+    path('employer/company/<int:pk>/delete/', CompanyDeleteView.as_view(), name='company_delete'),
     path('employer/dashboard/', EmployerDashboardView.as_view(), name='employer_dashboard'),
     path('employer/create/', JobCreateView.as_view(), name='job_create'),
     path('employer/<int:pk>/edit/', JobUpdateView.as_view(), name='job_edit'),
     path('employer/<int:pk>/delete/', JobDeleteView.as_view(), name='job_delete'),
     path('employer/<int:pk>/applicants/', JobApplicantsView.as_view(), name='job_applicants'),
     path('employer/application/<int:pk>/accept/', AcceptApplicationView.as_view(), name='accept_application'),
+    path('company/<int:pk>/', CompanyPublicDetailView.as_view(), name='company_public'),
     path('admin/pending/', PendingJobsView.as_view(), name='pending_jobs'),
     path('admin/<int:pk>/approve/', ApproveJobView.as_view(), name='approve_job'),
     path('admin/<int:pk>/reject/', RejectJobView.as_view(), name='reject_job'),

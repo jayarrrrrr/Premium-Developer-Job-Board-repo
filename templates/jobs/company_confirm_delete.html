@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <section class="marketplace-hero">
+    <div class="hero-gradient-bg"></div>
+    <div class="container-wide marketplace-hero-content">
+      <div class="hero-main">
+        <p class="hero-eyebrow">Delete Company</p>
+        <h1>Confirm Deletion</h1>
+        <p class="hero-subtitle">This action cannot be undone. Deleting a company will also remove all related job listings.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="container-wide">
+    <div class="card-modern" style="padding: 2rem; max-width: 720px; margin: 0 auto;">
+      <h2>Delete {{ company.company_name }}</h2>
+      <p>Are you sure you want to permanently delete this company profile?</p>
+      <p><strong>Location:</strong> {{ company.location|default:'Not specified' }}</p>
+      <p><strong>Jobs attached:</strong> {{ company.jobs.count }}</p>
+      <form method="post" style="margin-top: 1.5rem; display:flex; gap:1rem; align-items:center;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, delete company</button>
+        <a href="{% url 'company_detail' company.pk %}" class="btn btn-outline">Cancel</a>
+      </form>
+    </div>
+  </div>
+{% endblock %}
