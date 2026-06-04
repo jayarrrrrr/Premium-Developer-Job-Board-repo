@@ -428,6 +428,18 @@ class CompanyUpdateView(LoginRequiredMixin, EmployerRequiredMixin, View):
         form = CompanyForm(instance=company)
         return render(request, 'jobs/company_form.html', {'form': form, 'company': company})
 
+
+class CompanyProfileView(LoginRequiredMixin, EmployerRequiredMixin, View):
+    """Redirect helper: if the employer has a company profile, open the edit page;
+    otherwise send them to the create page. This keeps the `company_profile`
+    URL stable for templates and navigation.
+    """
+    def get(self, request, *args, **kwargs):
+        company = request.user.companies.first()
+        if company:
+            return redirect('company_edit', pk=company.pk)
+        return redirect('company_create')
+
     def post(self, request, pk, *args, **kwargs):
         company = get_object_or_404(Company, pk=pk, employer=request.user)
         form = CompanyForm(request.POST, request.FILES, instance=company)
