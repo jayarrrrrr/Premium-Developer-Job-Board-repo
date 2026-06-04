@@ -116,7 +116,13 @@ CLOUDINARY_STORAGE = {
     'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
 }
-if CLOUDINARY_STORAGE['API_KEY'] and CLOUDINARY_STORAGE['API_SECRET'] and CLOUDINARY_STORAGE['CLOUD_NAME']:
+CLOUDINARY_CONFIGURED = bool(
+    CLOUDINARY_STORAGE['CLOUD_NAME'] and
+    CLOUDINARY_STORAGE['API_KEY'] and
+    CLOUDINARY_STORAGE['API_SECRET']
+)
+
+if CLOUDINARY_CONFIGURED:
     # Only use secure URLs in production (when DEBUG=False)
     cloudinary.config(
         cloud_name=CLOUDINARY_STORAGE['CLOUD_NAME'],
@@ -125,8 +131,8 @@ if CLOUDINARY_STORAGE['API_KEY'] and CLOUDINARY_STORAGE['API_SECRET'] and CLOUDI
         secure=not DEBUG,  # False in local dev (HTTP), True in production (HTTPS)
     )
 
-# Media files - use Cloudinary for production
-if os.environ.get('DATABASE_URL'):
+# Media files - use Cloudinary storage only when Cloudinary is configured in production
+if CLOUDINARY_CONFIGURED and os.environ.get('DATABASE_URL'):
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
     MEDIA_URL = '/media/'
 else:
