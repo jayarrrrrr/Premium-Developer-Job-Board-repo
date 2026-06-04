@@ -59,7 +59,8 @@
   letter-spacing: -0.02em;
 }
 
-.employer-jobs-hero .hero-copy h1 {
+.employer-jobs-hero .hero-copy h1,
+.company-profile-hero .hero-copy h1 {
   color: white;
   background: none;
   -webkit-background-clip: initial;
