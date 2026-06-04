@@ -122,7 +122,7 @@ function renderJobs(data) {
     }
 
     try {
-      const clone = template.content.cloneNode(true);
+      const clone = template.content ? document.importNode(template.content, true) : template.cloneNode(true);
       
       // Helper to safely set text content
       const setSafeText = (selector, value, defaultValue = 'N/A') => {
@@ -131,10 +131,9 @@ function renderJobs(data) {
           if (el) {
             el.textContent = value || defaultValue;
             return true;
-          } else {
-            console.warn(`[search.js] renderJobs: Missing selector ${selector} for job ${job.id}`);
-            return false;
           }
+          console.warn(`[search.js] renderJobs: Missing selector ${selector} for job ${job.id}`);
+          return false;
         } catch (e) {
           console.error(`[search.js] renderJobs: Error setting ${selector}:`, e);
           return false;
@@ -168,15 +167,19 @@ function renderJobs(data) {
       try {
         const logoImage = clone.querySelector('.company-logo');
         const logoInitial = clone.querySelector('.company-initial');
-        if (logoImage && logoInitial) {
+        if (logoImage) {
           if (job.logo) {
             logoImage.src = job.logo;
             logoImage.style.display = 'block';
-            logoInitial.style.display = 'none';
+            if (logoInitial) {
+              logoInitial.style.display = 'none';
+            }
           } else {
             logoImage.style.display = 'none';
-            logoInitial.style.display = 'block';
-            logoInitial.textContent = getCompanyInitials(job.company || 'Unknown');
+            if (logoInitial) {
+              logoInitial.style.display = 'block';
+              logoInitial.textContent = getCompanyInitials(job.company || 'Unknown');
+            }
           }
         }
       } catch (e) {
