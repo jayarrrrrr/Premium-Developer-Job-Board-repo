@@ -155,6 +155,19 @@ function renderJobs(data) {
         }
       };
 
+      // Generic safe setter for textContent to avoid null reference errors
+      const safeSetText = (el, value, defaultValue = '') => {
+        try {
+          if (!el) return false;
+          if (typeof el.textContent === 'undefined') return false;
+          el.textContent = value || defaultValue;
+          return true;
+        } catch (e) {
+          console.warn('[search.js] safeSetText: could not set textContent', e, el);
+          return false;
+        }
+      };
+
       // Set all required fields
       const titleOk = setSafeText('.job-title', job.title, 'Untitled Position');
       const companyOk = setSafeText('.company-name', job.company, 'Unknown Company');
@@ -178,7 +191,7 @@ function renderJobs(data) {
             logoImage.style.display = 'none';
             if (logoInitial) {
               logoInitial.style.display = 'block';
-              logoInitial.textContent = getCompanyInitials(job.company || 'Unknown');
+              safeSetText(logoInitial, getCompanyInitials(job.company || 'Unknown'));
             }
           }
         }
@@ -191,7 +204,7 @@ function renderJobs(data) {
         const badgeRemote = clone.querySelector('.badge-remote');
         if (badgeRemote) {
           const isRemote = job.location && job.location.toLowerCase().includes('remote');
-          badgeRemote.textContent = isRemote ? 'Remote' : 'On-site';
+          safeSetText(badgeRemote, isRemote ? 'Remote' : 'On-site');
         }
       } catch (e) {
         console.warn('[search.js] renderJobs: Error setting remote badge for job', job.id, e);
@@ -205,7 +218,7 @@ function renderJobs(data) {
           getJobTags(job).forEach((tag) => {
             const chip = document.createElement('span');
             chip.className = 'skill-chip';
-            chip.textContent = tag;
+            safeSetText(chip, tag);
             skillsContainer.appendChild(chip);
           });
         }
@@ -219,12 +232,12 @@ function renderJobs(data) {
         if (applyBtn) {
           if (job.application_link && job.application_link.startsWith('http')) {
             applyBtn.href = job.application_link;
-            applyBtn.textContent = 'Apply now';
+            safeSetText(applyBtn, 'Apply now');
             applyBtn.target = '_blank';
             applyBtn.rel = 'noopener noreferrer';
           } else {
             applyBtn.href = '/upgrade/';
-            applyBtn.textContent = 'Premium to apply';
+            safeSetText(applyBtn, 'Premium to apply');
             applyBtn.style.opacity = '0.6';
           }
         }
@@ -316,7 +329,7 @@ function renderPagination(data) {
     link.className = 'page-link';
     if (disabled) link.classList.add('disabled');
     if (active) link.classList.add('active');
-    link.textContent = text;
+    safeSetText(link, text);
     if (!disabled) {
       link.addEventListener('click', (event) => {
         event.preventDefault();
