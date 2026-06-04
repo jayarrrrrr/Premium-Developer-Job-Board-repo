@@ -14,7 +14,7 @@
 
   <div class="container-wide">
     <div class="card-modern" style="padding: 2rem;">
-      <form method="post" enctype="multipart/form-data">
+      <form method="post" enctype="multipart/form-data" action="{% if company %}{% url 'company_edit' company.pk %}{% endif %}">
         {% csrf_token %}
         <div class="form-grid">
           <div>

@@ -57,7 +57,7 @@
 
     <section class="action-buttons">
       <a href="{% url 'job_create' %}" class="btn btn-primary">Post New Job</a>
-      <a href="{% url 'job_list' %}" class="btn btn-outline">Manage Jobs</a>
+      <a href="{% url 'employer_dashboard' %}" class="btn btn-outline">Manage Jobs</a>
       {% with first_job=jobs.first %}
         {% if first_job %}
           <a href="{% url 'job_applicants' first_job.pk %}" class="btn btn-outline">Review Applicants</a>

@@ -464,6 +464,20 @@ class CompanyUpdateView(LoginRequiredMixin, EmployerRequiredMixin, View):
         form = CompanyForm(instance=company)
         return render(request, 'jobs/company_form.html', {'form': form, 'company': company})
 
+    def post(self, request, pk, *args, **kwargs):
+        company = get_object_or_404(Company, pk=pk, employer=request.user)
+        form = CompanyForm(request.POST, request.FILES, instance=company)
+        if form.is_valid():
+            if form.cleaned_data.get('remove_logo'):
+                try:
+                    company.logo.delete(save=False)
+                except Exception:
+                    pass
+                company.logo = None
+            form.save()
+            return redirect('employer_dashboard')
+        return render(request, 'jobs/company_form.html', {'form': form, 'company': company})
+
 
 class CompanyProfileView(LoginRequiredMixin, EmployerRequiredMixin, View):
     """Redirect helper: if the employer has a company profile, open the edit page;

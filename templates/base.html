@@ -65,7 +65,7 @@
                 {% if request.user.profile_role == 'EMPLOYER' %}
                   <li><a class="dropdown-item" href="{% url 'employer_dashboard' %}">Dashboard</a></li>
                   <li><a class="dropdown-item" href="{% url 'job_create' %}">Post Job</a></li>
-                  <li><a class="dropdown-item" href="{% url 'job_list' %}">Manage Jobs</a></li>
+                  <li><a class="dropdown-item" href="{% url 'employer_dashboard' %}">Manage Jobs</a></li>
                   <li><a class="dropdown-item" href="{% url 'employer_dashboard' %}">Applicants</a></li>
                   <li><a class="dropdown-item" href="{% url 'company_profile' %}">Company Profile</a></li>
                 {% else %}
