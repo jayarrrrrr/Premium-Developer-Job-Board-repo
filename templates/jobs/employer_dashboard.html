@@ -16,7 +16,7 @@
       <article class="company-card">
         <div class="company-card-header">
           {% if company_profile and company_profile.logo %}
-            <img class="company-avatar" src="{{ company_profile.logo }}" alt="{{ company_profile.company_name }} logo">
+            <img class="company-avatar" src="{{ company_profile.logo.url }}" alt="{{ company_profile.company_name }} logo">
           {% else %}
             <span class="company-avatar company-avatar-fallback">{{ company_profile.company_name|default:'Your Company'|slice:":2"|upper }}</span>
           {% endif %}
